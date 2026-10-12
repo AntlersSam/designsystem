@@ -1,0 +1,6 @@
+node_modules/
+videos/*/snapshots/
+videos/*/renders/
+videos/*/out/
+*.mp4
+.DS_Store

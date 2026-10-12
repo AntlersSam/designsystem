@@ -1,0 +1,76 @@
+{
+  "title": "Sexualité après l'accouchement : dépasser la dyspareunie",
+  "source": "Kelley EL, Smith M. Current Sexual Health Reports, 2026 (revue narrative, 5 oct. 2026)",
+  "voice": {
+    "engine": "kokoro",
+    "id": "ff_siwis",
+    "speed": 1.08
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "vo": [
+        "Sexualité après l'accouchement : et si on arrêtait de tout ramener à la douleur ?"
+      ]
+    },
+    {
+      "id": "etude",
+      "vo": [
+        "Une revue narrative, publiée en octobre deux mille vingt-six, fait le point sur la littérature."
+      ]
+    },
+    {
+      "id": "methode",
+      "vo": [
+        "La méthode : les auteurs ont examiné soixante-douze études sur la fonction sexuelle après l'accouchement.",
+        "Limite : une revue narrative ne suit pas de protocole systématique. Le choix des études peut donc être sélectif."
+      ]
+    },
+    {
+      "id": "r1",
+      "vo": [
+        "Premier constat : la recherche se concentre surtout sur la dyspareunie. Désir, satisfaction et détresse sexuelle restent peu explorés.",
+        "Limite : c'est un état des lieux de la recherche, pas une mesure de la fréquence des difficultés."
+      ]
+    },
+    {
+      "id": "r2",
+      "vo": [
+        "Deuxième constat : pour la kinésithérapie pelvienne, les résultats sont hétérogènes.",
+        "Limite : on ne peut donc pas conclure à un effet clair et constant."
+      ]
+    },
+    {
+      "id": "r3",
+      "vo": [
+        "Troisième constat : certaines approches psychosociales donnent des résultats encourageants.",
+        "Limite : ces données restent préliminaires, et aucune intervention n'apparaît universellement supérieure."
+      ]
+    },
+    {
+      "id": "pratique",
+      "vo": [
+        "En pratique : une patiente peut avoir une difficulté sexuelle sans douleur, ou garder une détresse même quand ses symptômes physiques s'améliorent.",
+        "L'évaluation gagne à intégrer les dimensions physiques, émotionnelles, relationnelles et individuelles."
+      ]
+    },
+    {
+      "id": "retenir",
+      "vo": [
+        "À retenir : améliorer une fonction musculaire ne signifie pas forcément améliorer toute la santé sexuelle."
+      ]
+    },
+    {
+      "id": "preuve",
+      "vo": [
+        "Niveau de preuve : revue narrative. Utile pour le raisonnement clinique, mais insuffisante pour prouver l'efficacité d'une intervention précise."
+      ]
+    },
+    {
+      "id": "cta",
+      "vo": [
+        "Enregistrez ce décryptage, et suivez Hé Lilie pour les prochains."
+      ]
+    }
+  ]
+}

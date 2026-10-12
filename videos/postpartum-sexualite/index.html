@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>Sexualité après l'accouchement — Hey Lilie</title>
+    <script src="assets/vendor/gsap.min.js"></script>
+    <script src="assets/vendor/CustomEase.min.js"></script>
+    <script src="assets/vendor/SplitText.min.js"></script>
+    <script src="assets/vendor/DrawSVGPlugin.min.js"></script>
+    <script src="assets/vendor/hl-motion.js"></script>
+    <style>
+/* @hl:css */
+/* Hey Lilie — motion kit (9:16, 1080×1920)
+ * Editorial explainer look: paper, ink, one violet accent, one amber alert.
+ * No cards, no badges, no shadows. Type and drawings carry the information.
+ *
+ * Fonts: the brand face is Neue Haas Grotesk (Display for titles, Text for body).
+ * Drop licensed woff2 files in assets/fonts/ (see kit/fonts/README.md).
+ * build.py inlines this file into index.html and rewrites the @font-face
+ * block when Neue Haas files are present. Until then Inter Tight stands in.
+ */
+
+/* @hl-fonts:start */
+@font-face { font-family: "HL Display"; font-weight: 500; src: url("assets/fonts/inter-tight-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "HL Display"; font-weight: 600; src: url("assets/fonts/inter-tight-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "HL Display"; font-weight: 700; src: url("assets/fonts/inter-tight-latin-700-normal.woff2") format("woff2"); }
+@font-face { font-family: "HL Text"; font-weight: 400; src: url("assets/fonts/inter-tight-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "HL Text"; font-weight: 500; src: url("assets/fonts/inter-tight-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "HL Text"; font-weight: 600; src: url("assets/fonts/inter-tight-latin-600-normal.woff2") format("woff2"); }
+/* @hl-fonts:end */
+
+:root {
+  /* brand (Hey Lilie design system v2) */
+  --violet: #7a29ff;
+  --violet-700: #6620e0;
+  --violet-500: #9147ff;
+  --violet-300: #b48cff;
+  --violet-200: #d7c2ff;
+  --violet-100: #f0e8ff;
+  --marker: #e2d1ff;          /* highlighter behind ink, multiply-safe */
+  --ink: #0a0a0f;             /* gray-950 */
+  --ink-2: #374151;           /* gray-700 */
+  --ink-3: #6b7280;           /* gray-500 */
+  --line: #d1d5db;            /* gray-300 */
+  --paper: #fcfbfe;           /* white, a breath of violet */
+  --alert: #b45309;           /* "Limite" ink — amber, AA on paper */
+  --alert-line: #d97706;
+  --ok: #047857;
+  --no: #b91c1c;
+
+  /* 9:16 grid — essentials stay inside x 90–940, y 285–1450 */
+  --m-left: 96px;
+  --m-right: 140px;
+  --safe-top: 300px;
+  --safe-bottom: 470px;
+
+  /* type scale for a phone held at arm's length */
+  --t-hero: 136px;
+  --t-h1: 104px;
+  --t-h2: 80px;
+  --t-lead: 52px;
+  --t-label: 40px;
+  --t-small: 34px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--paper); }
+body { font-family: "HL Text", sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+#root { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--paper); }
+
+/* ---------- world & camera ---------- */
+.world { position: absolute; left: 0; top: 0; width: 1080px; will-change: transform; }
+.frame { position: relative; width: 1080px; height: 1920px; }
+.safe { position: absolute; left: var(--m-left); right: var(--m-right); top: var(--safe-top); bottom: var(--safe-bottom); }
+
+/* ---------- texture: paper grain, jittered at 12 fps by HL.grain ---------- */
+.grain { position: absolute; inset: -120px; pointer-events: none; z-index: 50; opacity: 0.045; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1.2 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size: 320px 320px; }
+.vignette { position: absolute; inset: 0; pointer-events: none; z-index: 49;
+  background: radial-gradient(120% 80% at 50% 45%, rgba(255,255,255,0) 60%, rgba(122,41,255,0.035) 100%); }
+
+/* ---------- chrome: brand mark + chapter (outside the world, never moves) ----------
+ * .chrome-bg is a paper band the world scrolls under, so moving text never
+ * collides with the brand mark during camera moves. */
+.chrome-bg { position: absolute; left: 0; right: 0; top: 0; height: 410px; z-index: 39; pointer-events: none;
+  background: linear-gradient(180deg, var(--paper) 0%, var(--paper) 76%, rgba(252, 251, 254, 0) 100%); }
+.chrome { position: absolute; left: var(--m-left); right: var(--m-right); top: 300px; z-index: 40;
+  display: flex; justify-content: space-between; align-items: baseline; }
+.mark { font-family: "HL Display"; font-weight: 700; font-size: 40px; letter-spacing: -0.035em; color: var(--ink); display: flex; align-items: center; }
+.mark i { display: inline-block; width: 11px; height: 11px; border-radius: 50%; background: var(--violet); margin: 0 5px; }
+.chapter { position: relative; height: 40px; overflow: hidden; min-width: 360px; text-align: right; }
+.chapter span { position: absolute; right: 0; top: 0; display: block; white-space: nowrap; font-family: "HL Text"; font-weight: 600;
+  font-size: 30px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+.chapter b { color: var(--violet); font-weight: 600; margin-right: 12px; }
+
+/* ---------- type ---------- */
+.hero, .h1, .h2 { font-family: "HL Display"; font-weight: 700; color: var(--ink); }
+.hero { font-size: var(--t-hero); line-height: 0.94; letter-spacing: -0.045em; }
+.h1 { font-size: var(--t-h1); line-height: 0.98; letter-spacing: -0.04em; }
+.h2 { font-size: var(--t-h2); line-height: 1.02; letter-spacing: -0.035em; }
+.lead { font-size: var(--t-lead); line-height: 1.22; font-weight: 500; color: var(--ink-2); letter-spacing: -0.02em; }
+.label { font-size: var(--t-label); line-height: 1.2; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; }
+.small { font-size: var(--t-small); line-height: 1.3; font-weight: 500; color: var(--ink-3); }
+.kicker { font-size: 30px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--violet); }
+.v { color: var(--violet); }
+.dim { color: var(--ink-3); }
+
+/* masked line reveal — HL.lines wraps each line itself; this is for hand-built lines */
+.ml { display: block; overflow: hidden; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+.ml > span { display: block; }
+
+/* highlighter & underline are BACKGROUNDS of an inline span, so they follow the
+ * text across line breaks (box-decoration-break: clone) and sit behind the ink.
+ *   <span class="hl">mot clé</span>     <span class="ul">mot clé</span>
+ * HL.mark / HL.under grow background-size from 0% to 100% — never set it in CSS.
+ * Keep them above the descender (≤ 88%): SplitText's line masks clip below it. */
+.hl, .ul { background-repeat: no-repeat; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.hl { background-image: linear-gradient(var(--marker), var(--marker)); background-position: 0 85%; background-size: 0% 62%;
+  padding: 0 0.05em; margin: 0 -0.05em; }
+.ul { background-image: linear-gradient(var(--ul, var(--violet)), var(--ul, var(--violet))); background-position: 0 86%; background-size: 0% 0.075em; }
+/* keeps a word and its asterisk together: <span class="nw">mot<sup class="ast">*</sup></span> */
+.nw { white-space: nowrap; }
+
+/* strike: <span class="st">mot<i class="st-bar"></i></span> */
+.st { position: relative; display: inline-block; }
+.st-bar { position: absolute; left: -0.04em; right: -0.04em; top: 52%; height: 0.09em; border-radius: 0.05em;
+  background: var(--ink); transform-origin: 0 50%; display: block; }
+
+/* ---------- the "Limite" footnote device (same every time) ----------
+ * <sup class="ast">*</sup> after the claim + .note at the bottom of the safe area */
+.ast { display: inline-block; color: var(--alert-line); font-weight: 700; font-size: 0.7em; vertical-align: super; line-height: 0; margin-left: 0.04em; }
+.note { position: absolute; left: 0; right: 0; bottom: 0; }
+.note-rule { display: block; height: 3px; width: 100%; background: var(--alert-line); transform-origin: 0 50%; margin-bottom: 26px; }
+.note-k { display: block; overflow: hidden; font-size: 30px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--alert); margin-bottom: 10px; }
+.note-k > span { display: block; }
+.note-t { font-size: 46px; line-height: 1.22; font-weight: 500; color: var(--ink); letter-spacing: -0.015em; }
+
+/* ---------- drawings ---------- */
+svg.draw { overflow: visible; }
+svg.draw .ink { fill: none; stroke: var(--ink); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+svg.draw .ink-v { fill: none; stroke: var(--violet); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+svg.draw .ink-l { fill: none; stroke: var(--line); stroke-width: 4; stroke-linecap: round; }
+svg.draw .arc { fill: none; stroke-width: 36; }
+svg.draw .ink-a { fill: none; stroke: var(--alert-line); stroke-width: 6; stroke-linecap: round; }
+.tag { position: absolute; font-size: var(--t-label); font-weight: 600; color: var(--ink); white-space: nowrap; letter-spacing: -0.01em; }
+
+/* /@hl:css */
+
+      /* ---------- film-specific layout ---------- */
+      .pad { position: absolute; left: 0; right: 0; }
+
+      /* hook */
+      #hook-t { top: 170px; font-size: 112px; }
+      #hook-q { top: 640px; }
+      #hook-d { top: 790px; font-size: 150px; }
+
+      /* étude */
+      #et-t { top: 140px; }
+      #doc { position: absolute; left: 0; top: 480px; width: 300px; height: 380px; transform-origin: 0 0; scale: 1.25; }
+      #doc .ghost { position: absolute; inset: 0; border: 4px solid var(--line); border-radius: 6px; background: var(--paper); }
+      #doc svg { position: absolute; inset: 0; }
+      #et-meta { position: absolute; left: 430px; right: 0; top: 560px; display: flex; flex-direction: column; gap: 22px; }
+
+      /* méthode + résultat 1 (same frame: the 72 papers regroup) */
+      #m-num { top: 100px; display: flex; align-items: baseline; gap: 24px; }
+      #m-num .n { font-family: "HL Display"; font-weight: 700; font-size: 230px; line-height: 0.85; letter-spacing: -0.06em; color: var(--violet); }
+      #m-num .u { font-family: "HL Display"; font-weight: 700; font-size: 84px; letter-spacing: -0.04em; }
+      #m-sub { top: 300px; }
+      #r1-t { top: 120px; }
+      #sheets { position: absolute; left: 0; top: 450px; width: 844px; height: 460px; }
+      .sheet { position: absolute; left: 0; top: 0; width: 44px; height: 56px; border: 3.5px solid var(--ink); border-radius: 5px; background: #fff; }
+      .sheet::before, .sheet::after { content: ""; position: absolute; left: 7px; height: 3px; border-radius: 2px; background: currentColor; }
+      .sheet::before { top: 12px; right: 7px; }
+      .sheet::after { top: 22px; right: 15px; }
+      .sheet { color: var(--line); }
+      .grp { position: absolute; z-index: 2; font-family: "HL Display"; font-weight: 700; letter-spacing: -0.02em; white-space: nowrap; }
+      #g-dys { left: 0; top: 0; font-size: 52px; color: var(--violet); }
+      #g-des { left: 470px; top: 0; }
+      #g-sat { left: 470px; top: 140px; }
+      #g-det { left: 470px; top: 280px; }
+      #g-des, #g-sat, #g-det { font-size: 38px; color: var(--ink-3); }
+      #r1-schema { position: absolute; right: 0; top: 440px; font-size: 26px; color: var(--ink-3); font-style: italic; }
+
+      /* résultat 2 */
+      #r2-t { top: 120px; }
+      #r2-l { top: 360px; }
+      #forest { position: absolute; left: 0; top: 560px; width: 844px; height: 360px; }
+      #forest .tag { font-size: 30px; color: var(--ink-3); font-weight: 500; }
+
+      /* résultat 3 */
+      #r3-t { top: 120px; }
+      #r3-l { top: 360px; }
+      #growth { position: absolute; left: 0; top: 560px; width: 844px; height: 360px; }
+
+      /* pratique */
+      #p-a { top: 120px; }
+      #p-b { top: 420px; }
+      #ring { position: absolute; left: 0; top: 140px; width: 844px; height: 820px; }
+      #ring .tag { font-size: 40px; }
+      #ring-c { position: absolute; left: 0; right: 0; top: 330px; text-align: center; font-family: "HL Display"; font-weight: 700;
+        font-size: 46px; line-height: 1.05; letter-spacing: -0.03em; }
+
+      /* à retenir: violet takeover */
+      #retenir { position: absolute; inset: 0; z-index: 45; background: var(--violet); }
+      #retenir .safe { color: #fff; }
+      #rt-k { top: 150px; color: rgba(255, 255, 255, 0.8); }
+      #rt-t { top: 230px; color: #fff; font-size: 88px; --ul: #ffffff; }
+
+      /* preuve */
+      #pv-t { top: 120px; }
+      #pyr { position: absolute; left: 0; top: 270px; width: 844px; height: 520px; }
+      #pyr .lab { position: absolute; left: 0; right: 0; text-align: center; font-size: 32px; font-weight: 600; color: var(--ink-3); }
+      #pyr .lab.on { color: #fff; font-size: 38px; font-weight: 700; }
+      #verdict { position: absolute; left: 0; right: 0; top: 860px; display: flex; flex-direction: column; gap: 34px; }
+      .vd { display: flex; align-items: flex-start; gap: 26px; }
+      .vd svg { width: 56px; height: 56px; flex: none; margin-top: -2px; }
+      .vd p { font-size: 42px; line-height: 1.2; font-weight: 600; letter-spacing: -0.015em; }
+
+      /* cta */
+      #cta-in { position: absolute; left: 0; right: 0; top: 300px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 70px; }
+      #cta-mark { font-family: "HL Display"; font-weight: 700; font-size: 170px; letter-spacing: -0.06em; display: flex; align-items: center; }
+      #cta-mark i { display: inline-block; width: 40px; height: 40px; border-radius: 50%; background: var(--violet); margin: 0 16px; }
+      #cta-save { display: flex; flex-direction: column; align-items: center; gap: 30px; font-size: 64px; }
+      #cta-save svg { width: 70px; height: 70px; }
+      #cta-ref { font-size: 32px; color: var(--ink-3); max-width: 780px; line-height: 1.35; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-hl-root data-composition-id="main" data-start="0" data-duration="90.144" data-width="1080" data-height="1920">
+      <div id="world" class="world">
+        <!-- 0 · hook -->
+        <section class="frame" id="f-hook"><div class="safe">
+          <h1 id="hook-t" class="pad h1">Sexualité après l'accouchement.</h1>
+          <p id="hook-q" class="pad lead">Et si on arrêtait de tout ramener à…</p>
+          <div id="hook-d" class="pad h1 v"><span class="ml"><span><span class="st">la douleur<i class="st-bar"></i></span> ?</span></span></div>
+        </div></section>
+
+        <!-- 1 · l'étude -->
+        <section class="frame" id="f-etude"><div class="safe">
+          <h2 id="et-t" class="pad h1">Une revue <span class="hl">narrative</span></h2>
+          <div id="doc">
+            <div class="ghost" id="gh-2"></div>
+            <div class="ghost" id="gh-1"></div>
+            <svg class="draw" viewBox="0 0 300 380">
+              <path id="doc-page" class="ink" d="M8 8 H222 L292 78 V372 H8 Z" style="fill:#fff" />
+              <path id="doc-fold" class="ink" d="M222 8 V78 H292" />
+              <path class="ink-v doc-l" d="M44 132 H200" />
+              <path class="ink-l doc-l" d="M44 184 H256" />
+              <path class="ink-l doc-l" d="M44 228 H240" />
+              <path class="ink-l doc-l" d="M44 272 H256" />
+              <path class="ink-l doc-l" d="M44 316 H180" />
+            </svg>
+          </div>
+          <div id="et-meta">
+            <span class="ml"><span class="label">Kelley EL, Smith M.</span></span>
+            <span class="ml"><span class="small">Current Sexual Health Reports</span></span>
+            <span class="ml"><span class="small">5 octobre 2026</span></span>
+          </div>
+        </div></section>
+
+        <!-- 2 · méthode → résultat 1 -->
+        <section class="frame" id="f-m"><div class="safe">
+          <div id="m-num" class="pad"><span class="ml"><span class="n" id="n72">0</span></span><span class="ml"><span class="u nw">études<sup class="ast">*</sup></span></span></div>
+          <p id="m-sub" class="pad lead">sur la fonction sexuelle après l'accouchement</p>
+          <h2 id="r1-t" class="pad h1">Le focus : la <span class="nw">dyspareunie<sup class="ast">*</sup></span></h2>
+          <div id="sheets">
+            <div class="grp" id="g-dys"><span class="ml"><span>Dyspareunie</span></span></div>
+            <div class="grp" id="g-des"><span class="ml"><span>Désir</span></span></div>
+            <div class="grp" id="g-sat"><span class="ml"><span>Satisfaction</span></span></div>
+            <div class="grp" id="g-det"><span class="ml"><span>Détresse sexuelle</span></span></div>
+            <div id="r1-schema">schéma, proportions illustratives</div>
+          </div>
+          <div class="note" id="n-m"><i class="note-rule"></i><span class="note-k"><span>Limite</span></span>
+            <p class="note-t">Pas de protocole systématique : le choix des études peut être sélectif.</p></div>
+          <div class="note" id="n-r1"><i class="note-rule"></i><span class="note-k"><span>Limite</span></span>
+            <p class="note-t">Un état des lieux de la recherche, pas de la fréquence des difficultés.</p></div>
+        </div></section>
+
+        <!-- 3 · résultat 2 -->
+        <section class="frame" id="f-r2"><div class="safe">
+          <h2 id="r2-t" class="pad h1">Kinésithérapie pelvienne</h2>
+          <p id="r2-l" class="pad h2">des résultats <span class="nw"><span class="hl">hétérogènes</span><sup class="ast">*</sup></span></p>
+          <div id="forest">
+            <svg class="draw" viewBox="0 0 844 360" width="844" height="360">
+              <path id="fo-axis" class="ink" d="M0 300 H844" />
+              <path id="fo-zero" class="ink-l" d="M422 20 V300" stroke-dasharray="2 14" />
+              <g id="fo-rows"></g>
+              <path id="fo-br" class="ink-v" d="M120 0 V-18 H700 V0" />
+            </svg>
+            <div class="tag" style="left:0; top:318px">moins d'effet</div>
+            <div class="tag" style="right:0; top:318px">plus d'effet</div>
+            <div class="tag" id="fo-zl" style="left:436px; top:6px">aucun effet</div>
+          </div>
+          <div class="note" id="n-r2"><i class="note-rule"></i><span class="note-k"><span>Limite</span></span>
+            <p class="note-t">On ne peut pas conclure à un effet clair et constant.</p></div>
+        </div></section>
+
+        <!-- 4 · résultat 3 -->
+        <section class="frame" id="f-r3"><div class="safe">
+          <h2 id="r3-t" class="pad h1">Approches psychosociales</h2>
+          <p id="r3-l" class="pad h2">des signaux <span class="nw"><span class="hl">encourageants</span><sup class="ast">*</sup></span></p>
+          <div id="growth">
+            <svg class="draw" viewBox="0 0 844 360" width="844" height="360">
+              <path id="gr-ax" class="ink-l" d="M0 330 H844 M0 330 V20" />
+              <path id="gr-solid" class="ink-v" d="M10 300 C120 296 210 270 300 238 S450 170 520 150" />
+              <g id="gr-dash" class="ink-a">
+                <path d="M548 141 L580 131" /><path d="M606 123 L638 113" /><path d="M664 105 L696 96" /><path d="M722 88 L754 79" /><path d="M780 71 L812 62" />
+              </g>
+              <circle id="gr-dot" cx="520" cy="150" r="13" fill="#7a29ff" />
+            </svg>
+            <div class="tag" id="gr-t1" style="left:560px; top:168px; color:var(--violet)">encourageant</div>
+            <div class="tag" id="gr-t2" style="left:600px; top:4px; color:var(--alert)">préliminaire</div>
+          </div>
+          <div class="note" id="n-r3"><i class="note-rule"></i><span class="note-k"><span>Limite</span></span>
+            <p class="note-t">Données préliminaires, et aucune intervention universellement supérieure.</p></div>
+        </div></section>
+
+        <!-- 5 · en pratique -->
+        <section class="frame" id="f-p"><div class="safe">
+          <h2 id="p-a" class="pad h2">Une difficulté sexuelle <span class="ul v">sans douleur</span>.</h2>
+          <h2 id="p-b" class="pad h2">Une détresse, <span class="ul v">même quand le corps va mieux</span>.</h2>
+          <div id="ring">
+            <svg class="draw" viewBox="0 0 844 820" width="844" height="820">
+              <g transform="translate(422 380)">
+                <path class="arc" id="arc-1" d="M 12.6 -239.7 A 240 240 0 0 1 239.7 -12.6" stroke="#7a29ff" />
+                <path class="arc" id="arc-2" d="M 239.7 12.6 A 240 240 0 0 1 12.6 239.7" stroke="#9147ff" />
+                <path class="arc" id="arc-3" d="M -12.6 239.7 A 240 240 0 0 1 -239.7 12.6" stroke="#b48cff" />
+                <path class="arc" id="arc-4" d="M -239.7 -12.6 A 240 240 0 0 1 -12.6 -239.7" stroke="#d7c2ff" />
+              </g>
+            </svg>
+            <div id="ring-c"><span class="ml"><span>Santé</span></span><span class="ml"><span>sexuelle</span></span></div>
+            <div class="tag" id="rl-1" style="right:0; top:40px">Physique</div>
+            <div class="tag" id="rl-2" style="right:0; top:700px">Émotionnelle</div>
+            <div class="tag" id="rl-3" style="left:0; top:700px">Relationnelle</div>
+            <div class="tag" id="rl-4" style="left:0; top:40px">Individuelle</div>
+          </div>
+        </div></section>
+
+        <!-- 6 · niveau de preuve -->
+        <section class="frame" id="f-pv"><div class="safe">
+          <h2 id="pv-t" class="pad h1">Niveau de preuve</h2>
+          <div id="pyr">
+            <svg class="draw" viewBox="0 0 844 520" width="844" height="520">
+              <path class="ink-l tier" d="M302 10 H542 L592 120 H252 Z" />
+              <path class="ink-l tier" d="M244 136 H600 L650 250 H194 Z" />
+              <path class="ink-l tier" d="M186 266 H658 L708 380 H136 Z" />
+              <path class="ink-v tier" id="tier-on" d="M128 396 H716 L766 510 H78 Z" style="fill:#7a29ff; fill-opacity:0" />
+            </svg>
+            <div class="lab" style="top:46px">Méta-analyses</div>
+            <div class="lab" style="top:174px">Essais randomisés</div>
+            <div class="lab" style="top:304px">Études observationnelles</div>
+            <div class="lab on" id="lab-on" style="top:430px">Revue narrative</div>
+          </div>
+          <div id="verdict">
+            <div class="vd" id="vd-ok"><svg class="draw" viewBox="0 0 56 56"><path class="ink" style="stroke:#047857" d="M8 30 L22 44 L48 12" /></svg>
+              <p>Utile pour le raisonnement clinique</p></div>
+            <div class="vd" id="vd-no"><svg class="draw" viewBox="0 0 56 56"><path class="ink" style="stroke:#b91c1c" d="M12 12 L44 44 M44 12 L12 44" /></svg>
+              <p>Insuffisante pour prouver l'efficacité d'une intervention</p></div>
+          </div>
+        </div></section>
+
+        <!-- 7 · cta -->
+        <section class="frame" id="f-cta"><div class="safe">
+          <div id="cta-in">
+            <div id="cta-mark"><span class="ml"><span>hey</span></span><i></i><span class="ml"><span>lilie</span></span></div>
+            <div id="cta-save" class="h2">
+              <svg class="draw" viewBox="0 0 70 70"><path id="bm" class="ink-v" d="M18 8 H52 V62 L35 48 L18 62 Z" /></svg>
+              <span class="ml"><span>Enregistrez ce décryptage</span></span>
+            </div>
+            <p id="cta-ref">Kelley EL, Smith M. Current Sexual Health Reports, 2026.</p>
+          </div>
+        </div></section>
+      </div>
+
+      <!-- à retenir: violet takeover above the world -->
+      <section id="retenir"><div class="safe">
+        <div id="rt-k" class="pad kicker"><span class="ml"><span>À retenir</span></span></div>
+        <h2 id="rt-t" class="pad h1">Améliorer une <span class="ul ul-a">fonction musculaire</span> ne signifie pas forcément améliorer <span class="ul ul-b">toute la santé sexuelle</span>.</h2>
+      </div></section>
+
+      <!-- chrome: never moves with the camera -->
+      <div class="chrome-bg"></div>
+      <div class="chrome">
+        <div class="mark">hey<i></i>lilie</div>
+        <div class="chapter">
+          <span><b>01</b>L'étude</span>
+          <span><b>02</b>Méthode</span>
+          <span><b>03</b>Résultats</span>
+          <span><b>04</b>En pratique</span>
+          <span><b>05</b>Niveau de preuve</span>
+        </div>
+      </div>
+      <div class="vignette"></div>
+      <div class="grain" id="grain" data-layout-allow-overflow></div>
+
+      <!-- @hl:audio -->
+<audio id="vo-hook-0" src="assets/vo/hook_0.wav" data-start="0.3" data-duration="3.84" data-track-index="9"></audio>
+<audio id="vo-etude-0" src="assets/vo/etude_0.wav" data-start="4.69" data-duration="5.056" data-track-index="9"></audio>
+<audio id="vo-methode-0" src="assets/vo/methode_0.wav" data-start="10.296" data-duration="5.845" data-track-index="9"></audio>
+<audio id="vo-methode-1" src="assets/vo/methode_1.wav" data-start="16.491" data-duration="6.165" data-track-index="9"></audio>
+<audio id="vo-r1-0" src="assets/vo/r1_0.wav" data-start="23.207" data-duration="7.701" data-track-index="9"></audio>
+<audio id="vo-r1-1" src="assets/vo/r1_1.wav" data-start="31.258" data-duration="4.8" data-track-index="9"></audio>
+<audio id="vo-r2-0" src="assets/vo/r2_0.wav" data-start="36.608" data-duration="4.629" data-track-index="9"></audio>
+<audio id="vo-r2-1" src="assets/vo/r2_1.wav" data-start="41.587" data-duration="3.093" data-track-index="9"></audio>
+<audio id="vo-r3-0" src="assets/vo/r3_0.wav" data-start="45.231" data-duration="4.48" data-track-index="9"></audio>
+<audio id="vo-r3-1" src="assets/vo/r3_1.wav" data-start="50.061" data-duration="5.504" data-track-index="9"></audio>
+<audio id="vo-pratique-0" src="assets/vo/pratique_0.wav" data-start="56.115" data-duration="7.616" data-track-index="9"></audio>
+<audio id="vo-pratique-1" src="assets/vo/pratique_1.wav" data-start="64.081" data-duration="5.333" data-track-index="9"></audio>
+<audio id="vo-retenir-0" src="assets/vo/retenir_0.wav" data-start="69.964" data-duration="5.845" data-track-index="9"></audio>
+<audio id="vo-preuve-0" src="assets/vo/preuve_0.wav" data-start="76.359" data-duration="8.149" data-track-index="9"></audio>
+<audio id="vo-cta-0" src="assets/vo/cta_0.wav" data-start="85.059" data-duration="3.285" data-track-index="9"></audio>
+<!-- /@hl:audio -->
+    </div>
+
+    <script>
+/* @hl:cues */
+window.HL_TOTAL = 90.144;
+window.HL_CUES = {"hook": [{"start": 0.3, "dur": 3.84, "words": [{"w": "Sexualité", "t": 0.3}, {"w": "après", "t": 0.803}, {"w": "l'accouchement:", "t": 1.105}, {"w": "et", "t": 2.014}, {"w": "si", "t": 2.14}, {"w": "on", "t": 2.266}, {"w": "arrêtait", "t": 2.392}, {"w": "de", "t": 2.769}, {"w": "tout", "t": 2.895}, {"w": "ramener", "t": 3.105}, {"w": "à", "t": 3.44}, {"w": "la", "t": 3.524}, {"w": "douleur?", "t": 3.65}]}], "etude": [{"start": 4.69, "dur": 5.056, "words": [{"w": "Une", "t": 4.69}, {"w": "revue", "t": 4.933}, {"w": "narrative,", "t": 5.297}, {"w": "publiée", "t": 6.029}, {"w": "en", "t": 6.411}, {"w": "octobre", "t": 6.555}, {"w": "deux", "t": 6.937}, {"w": "mille", "t": 7.175}, {"w": "vingt-six,", "t": 7.462}, {"w": "fait", "t": 8.126}, {"w": "le", "t": 8.353}, {"w": "point", "t": 8.489}, {"w": "sur", "t": 8.762}, {"w": "la", "t": 8.943}, {"w": "littérature.", "t": 9.079}]}], "methode": [{"start": 10.296, "dur": 5.845, "words": [{"w": "La", "t": 10.296}, {"w": "méthode:", "t": 10.497}, {"w": "les", "t": 11.173}, {"w": "auteurs", "t": 11.388}, {"w": "ont", "t": 11.818}, {"w": "examiné", "t": 12.033}, {"w": "soixante-douze", "t": 12.463}, {"w": "études", "t": 13.216}, {"w": "sur", "t": 13.592}, {"w": "la", "t": 13.807}, {"w": "fonction", "t": 13.968}, {"w": "sexuelle", "t": 14.452}, {"w": "après", "t": 14.936}, {"w": "l'accouchement.", "t": 15.258}]}, {"start": 16.491, "dur": 6.165, "words": [{"w": "Limite:", "t": 16.491}, {"w": "une", "t": 16.862}, {"w": "revue", "t": 17.074}, {"w": "narrative", "t": 17.392}, {"w": "ne", "t": 17.921}, {"w": "suit", "t": 18.08}, {"w": "pas", "t": 18.345}, {"w": "de", "t": 18.557}, {"w": "protocole", "t": 18.716}, {"w": "systématique.", "t": 19.246}, {"w": "Le", "t": 20.198}, {"w": "choix", "t": 20.357}, {"w": "des", "t": 20.675}, {"w": "études", "t": 20.888}, {"w": "peut", "t": 21.259}, {"w": "donc", "t": 21.525}, {"w": "être", "t": 21.79}, {"w": "sélectif.", "t": 22.056}]}], "r1": [{"start": 23.207, "dur": 7.701, "words": [{"w": "Premier", "t": 23.207}, {"w": "constat:", "t": 23.623}, {"w": "la", "t": 24.192}, {"w": "recherche", "t": 24.347}, {"w": "se", "t": 24.864}, {"w": "concentre", "t": 25.019}, {"w": "surtout", "t": 25.536}, {"w": "sur", "t": 25.949}, {"w": "la", "t": 26.156}, {"w": "dyspareunie.", "t": 26.311}, {"w": "Désir,", "t": 27.247}, {"w": "satisfaction", "t": 28.009}, {"w": "et", "t": 28.669}, {"w": "détresse", "t": 28.821}, {"w": "sexuelle", "t": 29.278}, {"w": "restent", "t": 29.735}, {"w": "peu", "t": 30.141}, {"w": "explorés.", "t": 30.344}]}, {"start": 31.258, "dur": 4.8, "words": [{"w": "Limite:", "t": 31.258}, {"w": "c'est", "t": 31.613}, {"w": "un", "t": 31.867}, {"w": "état", "t": 32.02}, {"w": "des", "t": 32.274}, {"w": "lieux", "t": 32.477}, {"w": "de", "t": 32.781}, {"w": "la", "t": 32.934}, {"w": "recherche,", "t": 33.086}, {"w": "pas", "t": 33.854}, {"w": "une", "t": 34.033}, {"w": "mesure", "t": 34.211}, {"w": "de", "t": 34.524}, {"w": "la", "t": 34.658}, {"w": "fréquence", "t": 34.791}, {"w": "des", "t": 35.238}, {"w": "difficultés.", "t": 35.416}]}], "r2": [{"start": 36.608, "dur": 4.629, "words": [{"w": "Deuxième", "t": 36.608}, {"w": "constat:", "t": 37.152}, {"w": "pour", "t": 37.792}, {"w": "la", "t": 38.025}, {"w": "kinésithérapie", "t": 38.166}, {"w": "pelvienne,", "t": 38.867}, {"w": "les", "t": 39.553}, {"w": "résultats", "t": 39.756}, {"w": "sont", "t": 40.263}, {"w": "hétérogènes.", "t": 40.517}]}, {"start": 41.587, "dur": 3.093, "words": [{"w": "Limite:", "t": 41.587}, {"w": "on", "t": 41.907}, {"w": "ne", "t": 42.044}, {"w": "peut", "t": 42.181}, {"w": "donc", "t": 42.41}, {"w": "pas", "t": 42.638}, {"w": "conclure", "t": 42.821}, {"w": "à", "t": 43.233}, {"w": "un", "t": 43.324}, {"w": "effet", "t": 43.461}, {"w": "clair", "t": 43.736}, {"w": "et", "t": 44.01}, {"w": "constant.", "t": 44.147}]}], "r3": [{"start": 45.231, "dur": 4.48, "words": [{"w": "Troisième", "t": 45.231}, {"w": "constat:", "t": 45.753}, {"w": "certaines", "t": 46.396}, {"w": "approches", "t": 46.844}, {"w": "psychosociales", "t": 47.291}, {"w": "donnent", "t": 47.963}, {"w": "des", "t": 48.321}, {"w": "résultats", "t": 48.5}, {"w": "encourageants.", "t": 48.948}]}, {"start": 50.061, "dur": 5.504, "words": [{"w": "Limite:", "t": 50.061}, {"w": "ces", "t": 50.402}, {"w": "données", "t": 50.597}, {"w": "restent", "t": 50.986}, {"w": "préliminaires,", "t": 51.375}, {"w": "et", "t": 52.333}, {"w": "aucune", "t": 52.487}, {"w": "intervention", "t": 52.846}, {"w": "n'apparaît", "t": 53.512}, {"w": "universellement", "t": 54.025}, {"w": "supérieure.", "t": 54.846}]}], "pratique": [{"start": 56.115, "dur": 7.616, "words": [{"w": "En", "t": 56.115}, {"w": "pratique:", "t": 56.295}, {"w": "une", "t": 56.946}, {"w": "patiente", "t": 57.153}, {"w": "peut", "t": 57.617}, {"w": "avoir", "t": 57.876}, {"w": "une", "t": 58.185}, {"w": "difficulté", "t": 58.392}, {"w": "sexuelle", "t": 58.96}, {"w": "sans", "t": 59.425}, {"w": "douleur,", "t": 59.683}, {"w": "ou", "t": 60.384}, {"w": "garder", "t": 60.521}, {"w": "une", "t": 60.84}, {"w": "détresse", "t": 61.023}, {"w": "même", "t": 61.434}, {"w": "quand", "t": 61.662}, {"w": "ses", "t": 61.936}, {"w": "symptômes", "t": 62.118}, {"w": "physiques", "t": 62.575}, {"w": "s'améliorent.", "t": 63.031}]}, {"start": 64.081, "dur": 5.333, "words": [{"w": "L'évaluation", "t": 64.081}, {"w": "gagne", "t": 64.657}, {"w": "à", "t": 64.945}, {"w": "intégrer", "t": 65.041}, {"w": "les", "t": 65.474}, {"w": "dimensions", "t": 65.666}, {"w": "physiques,", "t": 66.194}, {"w": "émotionnelles,", "t": 66.875}, {"w": "relationnelles", "t": 67.773}, {"w": "et", "t": 68.483}, {"w": "individuelles.", "t": 68.625}]}], "retenir": [{"start": 69.964, "dur": 5.845, "words": [{"w": "À", "t": 69.964}, {"w": "retenir:", "t": 70.1}, {"w": "améliorer", "t": 70.82}, {"w": "une", "t": 71.34}, {"w": "fonction", "t": 71.548}, {"w": "musculaire", "t": 72.016}, {"w": "ne", "t": 72.588}, {"w": "signifie", "t": 72.744}, {"w": "pas", "t": 73.212}, {"w": "forcément", "t": 73.42}, {"w": "améliorer", "t": 73.939}, {"w": "toute", "t": 74.459}, {"w": "la", "t": 74.771}, {"w": "santé", "t": 74.927}, {"w": "sexuelle.", "t": 75.239}]}], "preuve": [{"start": 76.359, "dur": 8.149, "words": [{"w": "Niveau", "t": 76.359}, {"w": "de", "t": 76.808}, {"w": "preuve:", "t": 77.0}, {"w": "revue", "t": 77.607}, {"w": "narrative.", "t": 78.003}, {"w": "Utile", "t": 78.939}, {"w": "pour", "t": 79.211}, {"w": "le", "t": 79.438}, {"w": "raisonnement", "t": 79.573}, {"w": "clinique,", "t": 80.162}, {"w": "mais", "t": 80.75}, {"w": "insuffisante", "t": 81.014}, {"w": "pour", "t": 81.701}, {"w": "prouver", "t": 81.965}, {"w": "l'efficacité", "t": 82.388}, {"w": "d'une", "t": 83.022}, {"w": "intervention", "t": 83.286}, {"w": "précise.", "t": 83.973}]}], "cta": [{"start": 85.059, "dur": 3.285, "words": [{"w": "Enregistrez", "t": 85.059}, {"w": "ce", "t": 85.729}, {"w": "décryptage,", "t": 85.896}, {"w": "et", "t": 86.7}, {"w": "suivez", "t": 86.82}, {"w": "Hé", "t": 87.099}, {"w": "Lilie", "t": 87.219}, {"w": "pour", "t": 87.459}, {"w": "les", "t": 87.659}, {"w": "prochains.", "t": 87.818}]}]};
+/* /@hl:cues */
+    </script>
+    <script>
+      document.fonts.ready.then(() => {
+        const tl = gsap.timeline({ paused: true });
+        const H = HL;
+        H.use(tl);
+        const { cue, start, end, at } = H;
+        const W = "#world";
+        const F = H.frames("#world > .frame");
+        const camTo = (i, t) => F.go(i, t, { world: W });
+        const camLead = 0.85; // camera starts this long before the scene's first word
+
+        gsap.set("#retenir", { clipPath: "circle(0% at 48% 43%)" });
+        gsap.set(".chapter span", { yPercent: 110, autoAlpha: 0 });
+        H.grain("#grain", HL_TOTAL);
+
+        /* ---------- 0 · hook ---------- */
+        H.lines("#hook-t", 0.15, { stagger: 0.1 });
+        H.lines("#hook-q", cue("hook", 0, "et"));
+        H.rise("#hook-d .ml > span", cue("hook", 0, "douleur") - 0.25);
+        H.strike("#hook-d .st", end("hook") - 0.05, { d: 0.6 });
+        H.tint("#hook-d .st", end("hook") + 0.35, "#9ca3af");
+
+        /* ---------- 1 · l'étude ---------- */
+        camTo(1, start("etude") - camLead);
+        H.chapter(0, start("etude") - 0.3);
+        H.lines("#et-t", cue("etude", 0, "une"));
+        H.mark("#et-t .hl", cue("etude", 0, "narrative"));
+        H.draw("#doc-page, #doc-fold", cue("etude", 0, "publiée") - 0.2, { d: 1.0, stagger: 0.25 });
+        H.draw("#doc .doc-l", cue("etude", 0, "publiée") + 0.35, { d: 0.5, stagger: 0.1 });
+        H.rise("#et-meta .ml > span", cue("etude", 0, "octobre"), { stagger: 0.12 });
+        // "fait le point sur la littérature" — the one paper becomes a pile
+        tl.fromTo("#gh-1", { opacity: 0, x: 0, y: 0 }, { opacity: 1, x: -18, y: -18, duration: 0.9, ease: "hl.out" }, cue("etude", 0, "littérature") - 0.2);
+        tl.fromTo("#gh-2", { opacity: 0, x: 0, y: 0 }, { opacity: 1, x: -36, y: -36, duration: 0.9, ease: "hl.out" }, cue("etude", 0, "littérature"));
+
+        /* ---------- 2 · méthode: 72 papers ---------- */
+        const sheets = document.getElementById("sheets");
+        const N = 72, COLS = 12;
+        const S = [];
+        for (let i = 0; i < N; i++) {
+          const d = document.createElement("div");
+          d.className = "sheet";
+          sheets.appendChild(d);
+          S.push(d);
+          gsap.set(d, { x: (i % COLS) * 70 + 3, y: Math.floor(i / COLS) * 74 + 6, transformOrigin: "0 0" });
+        }
+        camTo(2, start("methode") - camLead);
+        H.chapter(1, start("methode") - 0.3);
+        tl.fromTo(S, { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.6, ease: "hl.out",
+          stagger: { grid: [6, 12], from: "center", amount: 1.0 } }, cue("methode", 0, "soixante-douze") - 0.35);
+        H.rise("#m-num .ml > span", cue("methode", 0, "soixante-douze") - 0.3, { stagger: 0.12 });
+        H.count("#n72", 72, cue("methode", 0, "soixante-douze") - 0.25, { d: 1.2 });
+        H.lines("#m-sub", cue("methode", 0, "fonction"));
+        // limite: the selection is visible — most papers fall away
+        const keep = (i) => ((i * 37 + 11) % 100) < 34; // seeded, deterministic
+        H.note("#n-m", start("methode", 1) - 0.1, "#m-num .ast");
+        H.fade(S.filter((_, i) => !keep(i)), cue("methode", 1, "choix"), 0.12, { stagger: H.scatter(0.5) });
+        tl.to(S.filter((_, i) => keep(i)), { color: "#7a29ff", borderColor: "#7a29ff", duration: 0.5, ease: "hl.mark" }, cue("methode", 1, "choix") + 0.2);
+
+        /* ---------- 2 · résultat 1: papers regroup by theme ---------- */
+        const r1 = start("r1");
+        H.chapter(2, r1 - 0.3);
+        H.noteOut("#n-m", r1 - 0.45, "#m-num .ast");
+        H.sink("#m-num .ml > span", r1 - 0.45);
+        H.linesOut("#m-sub", r1 - 0.45);
+        tl.to(S, { opacity: 1, color: "#d1d5db", borderColor: "#0a0a0f", duration: 0.5, ease: "hl.mark" }, r1 - 0.3);
+        H.lines("#r1-t", cue("r1", 0, "la", 1));
+        // positions: 44 → dyspareunie (7 cols), 10/9/9 → the three others (10 per row, small)
+        // 44 → dyspareunie (7 columns), then 10 / 9 / 9 small ones beside their label
+        const slot = (i) => {
+          if (i < 44) return { x: (i % 7) * 58, y: 70 + Math.floor(i / 7) * 52, scale: 0.85 };
+          const k = i - 44, g = k < 10 ? 0 : k < 19 ? 1 : 2, j = k - [0, 10, 19][g];
+          return { x: 470 + j * 34, y: [0, 140, 280][g] + 56, scale: 0.6 };
+        };
+        // regroup on "concentre", the narrator's verb — each paper on its own beat
+        const tRe = cue("r1", 0, "concentre") - 0.2;
+        const delay = H.scatter(0.5, 29);
+        S.forEach((s, i) => tl.to(s, { ...slot(i), duration: 1.3, ease: "hl.cam" }, tRe + delay(i)));
+        tl.to(S.slice(0, 44), { color: "#7a29ff", borderColor: "#7a29ff", duration: 0.5, ease: "hl.mark", stagger: 0.008 }, cue("r1", 0, "dyspareunie") - 0.1);
+        H.rise("#g-dys .ml > span", cue("r1", 0, "dyspareunie") - 0.15);
+        H.rise("#g-des .ml > span", cue("r1", 0, "désir"));
+        H.rise("#g-sat .ml > span", cue("r1", 0, "satisfaction"));
+        H.rise("#g-det .ml > span", cue("r1", 0, "détresse"));
+        tl.to(S.slice(44), { opacity: 0.45, duration: 0.6, ease: "hl.mark" }, cue("r1", 0, "peu"));
+        H.enter("#r1-schema", cue("r1", 0, "peu") + 0.2, { y: 10 });
+        H.note("#n-r1", start("r1", 1) - 0.1, "#r1-t .ast");
+
+        /* ---------- 3 · résultat 2: heterogeneous effects ---------- */
+        const rows = document.getElementById("fo-rows");
+        const pts = [190, 560, 330, 690, 250, 470];
+        pts.forEach((x, i) => {
+          const y = 52 + i * 40;
+          rows.insertAdjacentHTML("beforeend",
+            `<path class="ink-l fo-ci" d="M${x - 70} ${y} H${x + 70}" /><circle class="fo-dot" cx="${x}" cy="${y}" r="13" fill="#7a29ff" />`);
+        });
+        camTo(3, start("r2") - camLead);
+        H.lines("#r2-t", cue("r2", 0, "kinésithérapie") - 0.15);
+        H.draw("#fo-axis, #fo-zero", cue("r2", 0, "kinésithérapie") + 0.3, { d: 0.9 });
+        H.enter("#forest .tag", cue("r2", 0, "pelvienne"), { y: 14, stagger: 0.1 });
+        H.lines("#r2-l", cue("r2", 0, "les"));
+        H.draw(".fo-ci", cue("r2", 0, "résultats"), { d: 0.5, stagger: 0.14 });
+        tl.fromTo(".fo-dot", { scale: 0, transformOrigin: "50% 50%" }, { scale: 1, duration: 0.5, ease: "hl.out", stagger: 0.14 }, cue("r2", 0, "résultats") + 0.1);
+        H.mark("#r2-l .hl", cue("r2", 0, "hétérogènes"));
+        H.draw("#fo-br", cue("r2", 0, "hétérogènes") + 0.2, { d: 0.8 });
+        H.note("#n-r2", start("r2", 1) - 0.1, "#r2-l .ast");
+
+        /* ---------- 4 · résultat 3: early, encouraging signal ---------- */
+        camTo(4, start("r3") - camLead);
+        H.lines("#r3-t", cue("r3", 0, "approches") - 0.15);
+        H.draw("#gr-ax", cue("r3", 0, "approches") + 0.2, { d: 0.8 });
+        H.lines("#r3-l", cue("r3", 0, "donnent"));
+        H.draw("#gr-solid", cue("r3", 0, "donnent"), { d: 1.4 });
+        tl.fromTo("#gr-dot", { scale: 0, transformOrigin: "50% 50%" }, { scale: 1, duration: 0.5, ease: "hl.out" }, cue("r3", 0, "donnent") + 1.2);
+        H.mark("#r3-l .hl", cue("r3", 0, "encourageants"));
+        H.enter("#gr-t1", cue("r3", 0, "encourageants") + 0.15, { y: 12 });
+        H.note("#n-r3", start("r3", 1) - 0.1, "#r3-l .ast");
+        H.draw("#gr-dash path", cue("r3", 1, "préliminaires") - 0.1, { d: 0.25, stagger: 0.12, ease: "none" });
+        H.enter("#gr-t2", cue("r3", 1, "préliminaires") + 0.3, { y: 12 });
+
+        /* ---------- 5 · en pratique ---------- */
+        camTo(5, start("pratique") - camLead);
+        H.chapter(3, start("pratique") - 0.3);
+        H.lines("#p-a", cue("pratique", 0, "une", 1));
+        H.under("#p-a .ul", cue("pratique", 0, "sans"));
+        H.lines("#p-b", cue("pratique", 0, "garder"));
+        H.under("#p-b .ul", cue("pratique", 0, "même"));
+        const p1 = start("pratique", 1);
+        H.linesOut("#p-a, #p-b", p1 - 0.5);
+        H.rise("#ring-c .ml > span", p1, { stagger: 0.1 });
+        ["physiques", "émotionnelles", "relationnelles", "individuelles"].forEach((w, i) => {
+          const t = cue("pratique", 1, w) - 0.1;
+          H.draw(`#arc-${i + 1}`, t, { d: 0.75 });
+          H.enter(`#rl-${i + 1}`, t + 0.1, { y: 16 });
+        });
+        H.idle("#ring svg", p1 + 2, end("pratique", 1) + 1.2, { amp: -5, period: 3.2 });
+
+        /* ---------- 6 · à retenir: the ring floods the screen ---------- */
+        const rt = start("retenir");
+        // match cut: the violet grows out of the centre of the ring
+        tl.fromTo("#retenir", { clipPath: "circle(0% at 48% 43%)" }, { clipPath: "circle(120% at 48% 43%)", duration: 1.3, ease: "hl.cam" }, rt - 0.95);
+        H.rise("#rt-k .ml > span", rt + 0.05);
+        H.lines("#rt-t", cue("retenir", 0, "améliorer", 1) - 0.1, { stagger: 0.12 });
+        H.under("#rt-t .ul-a", cue("retenir", 0, "fonction"));
+        H.under("#rt-t .ul-b", cue("retenir", 0, "toute"));
+        H.sink("#rt-k .ml > span", start("preuve") - 1.35);
+        H.linesOut("#rt-t", start("preuve") - 1.3);
+        // the camera moves behind the curtain, then the curtain closes on the next frame
+        F.go(6, rt + 0.4, { world: W, cut: true });
+        H.chapter(4, rt + 0.4);
+        tl.to("#retenir", { clipPath: "circle(0% at 50% 30%)", duration: 1.1, ease: "hl.cam" }, start("preuve") - 0.8);
+
+        /* ---------- 7 · niveau de preuve ---------- */
+        H.lines("#pv-t", start("preuve") + 0.05);
+        H.draw("#pyr .tier", start("preuve") + 0.25, { d: 0.7, stagger: 0.15 });
+        H.enter("#pyr .lab:not(.on)", start("preuve") + 0.45, { y: 10, stagger: 0.15 });
+        tl.to("#tier-on", { fillOpacity: 1, duration: 0.6, ease: "hl.mark" }, cue("preuve", 0, "revue"));
+        H.enter("#lab-on", cue("preuve", 0, "revue") + 0.1, { y: 14 });
+        H.fade("#pyr .lab:not(.on)", cue("preuve", 0, "revue") + 0.2, 0.55);
+        H.draw("#vd-ok path", cue("preuve", 0, "utile"), { d: 0.6 });
+        H.enter("#vd-ok p", cue("preuve", 0, "utile"), { x: -20, y: 0 });
+        H.draw("#vd-no path", cue("preuve", 0, "insuffisante"), { d: 0.6 });
+        H.enter("#vd-no p", cue("preuve", 0, "insuffisante"), { x: -20, y: 0 });
+
+        /* ---------- 8 · cta ---------- */
+        camTo(7, start("cta") - camLead);
+        tl.to(".chapter", { opacity: 0, duration: 0.4, ease: "hl.in" }, start("cta") - camLead);
+        H.rise("#cta-mark .ml > span", start("cta") - 0.1, { stagger: 0.1 });
+        tl.fromTo("#cta-mark i", { scale: 0 }, { scale: 1, duration: 0.6, ease: "hl.out" }, start("cta") + 0.15);
+        H.draw("#bm", cue("cta", 0, "enregistrez"), { d: 0.8 });
+        H.rise("#cta-save .ml > span", cue("cta", 0, "enregistrez") + 0.1);
+        H.enter("#cta-ref", cue("cta", 0, "suivez"), { y: 14 });
+
+        window.__timelines["main"] = tl;
+      });
+    </script>
+  </body>
+</html>
