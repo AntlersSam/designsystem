@@ -15,11 +15,11 @@ kf = sorted((OUT / "assets/kf").glob("frame-*.png"))
 
 B = [
  ("Hook", "0 – 5 s",
-  "Une fuite pendant un saut&nbsp;? Chez vos patientes sportives, ce n'est pas un hasard&nbsp;: c'est de la mécanique.",
-  ["La silhouette saute&nbsp;: arc de saut, ralenti à l'apex. Titre centré, révélé ligne par ligne.",
-   "Réception&nbsp;: léger écrasement, traits d'impact ambre. Une goutte tombe sur «&nbsp;fuite&nbsp;».",
-   "La caméra plonge dans l'abdomen (zoom ×2,6). Un cercle violet s'ouvre et révèle la coupe."],
-  "<b>Match cut</b> — le ventre de la silhouette devient le caisson abdominal. Zoom 1,4&nbsp;s, ease-in-out lourd."),
+  "Gainage tous les jours, abdos en béton… et pourtant, elle fuit au premier saut. Pourquoi&nbsp;? Parce que la continence, c'est une histoire de pression.",
+  ["Plein cadre, sans logo&nbsp;: les 3 mots tombent sur le rythme de la voix, «&nbsp;Abdos en béton&nbsp;» en violet.",
+   "Coupe nette&nbsp;: la sportive atterrit d'un saut à la corde, traits d'impact, la goutte tombe sur «&nbsp;fuit&nbsp;».",
+   "«&nbsp;Pourquoi&nbsp;?&nbsp;» La caméra plonge dans l'abdomen&nbsp;: un cercle violet s'ouvre sur la coupe."],
+  "<b>Match cut</b> : le ventre de la sportive devient le caisson abdominal (zoom 1,4&nbsp;s). Le paradoxe est posé, la partie pédagogique commence."),
  ("Pression intra-abdominale", "5 – 14 s",
   "À chaque saut, chaque foulée, chaque charge soulevée, la pression intra-abdominale monte brutalement.",
   ["Le cercle s'efface. Les 4 parois se dessinent une à une, chacune sur son nom.",
@@ -83,7 +83,7 @@ for i, (name, tc, vo, notes, trans) in enumerate(B):
         f'<div class="lab"><span class="l">{"ABC"[j]}</span><p>{n}</p></div></div>' for j, n in enumerate(notes))
     clips.append(f'''<section class="clip sheet" data-start="{i}" data-duration="1" data-track-index="1">
       <div class="left">
-        <div class="eyebrow">Storyboard v0 · Fuites urinaires à l'effort</div>
+        <div class="eyebrow">Storyboard v1.1 · Fuites urinaires à l'effort</div>
         <div class="num">0{i+1}<small> / 05</small></div>
         <div class="name">{name}</div>
         <div class="tc">{tc} · Reel 9:16 · public kinés</div>
@@ -91,7 +91,7 @@ for i, (name, tc, vo, notes, trans) in enumerate(B):
         <div class="tr"><div class="k">Transition vers la suite</div>{trans}</div>
       </div>
       <div class="frames">{frames}</div>
-      <div class="foot">hey•lilie — layout centré · Neue Haas Grotesk Display · images clés A → B → C</div>
+      <div class="foot">v1.1 — sans logo · textes agrandis et aérés · hook paradoxal · images clés A → B → C</div>
     </section>''')
 
 html = f'''<!doctype html><html lang="fr"><head><meta charset="UTF-8"/><meta name="viewport" content="width=1920, height=1200"/>

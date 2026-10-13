@@ -56,24 +56,25 @@ def canister(p=0.12, floor="rest", arrows_down=0, arrows_up=0, peak=False, label
         L = [(400, 118, "Diaphragme", INK), (720, 470, "Abdominaux", INK), (110, 470, "Rachis", INK3),
              (400, C - 18 + 70, "Plancher pelvien", V)]
     elif labels == "organs":
-        L = [(420, bcy + 8, "Vessie", V), (560, u_end + 4, "Urètre", INK3), (250, fmid + 44, "Sphincter", V)]
+        L = [(300, bcy + 14, "Vessie", INK), (470, u_end + 40, "Urètre", INK3), (330, fmid + 64, "Sphincter", V)]
     elif labels == "pia":
         L = [(400, 268, "PIA", AMBER if peak else V)]
     for x, y, t, c in L:
         anchor = "middle"
-        if t == "Abdominaux": anchor = "start"
+        if t in ("Abdominaux", "Urètre"): anchor = "start"
+        if t in ("Sphincter", "Vessie"): anchor = "end"
         if t == "Rachis": anchor = "end"
-        size = 88 if t == "PIA" else 42
+        size = 96 if t == "PIA" else 54
         weight = 500
-        L_ = f'<text x="{x}" y="{y}" text-anchor="{anchor}" font-family="HL Display" font-weight="{weight}" font-size="{size}" fill="{c}" letter-spacing="-0.5">{t}</text>'
+        L_ = f'<text x="{x}" y="{y}" text-anchor="{anchor}" font-family="HL Display" font-weight="{weight}" font-size="{size}" fill="{c}" letter-spacing="0.2">{t}</text>'
         out.append(L_)
-    return f'<svg class="art" viewBox="-170 40 1140 940" width="900" height="742">{"".join(out)}</svg>'
+    return f'<svg class="art" viewBox="-210 40 1290 940" width="1000" height="729">{"".join(out)}</svg>'
 
 
 # ---------------------------------------------------------------- jumper
 def jumper(pose="air", drop=False, impact=False, scale=1.0):
     if pose == "air":
-        b = [("c", 200, 92, 40), ("l", 200, 140, 200, 300), ("l", 200, 170, 128, 70), ("l", 200, 170, 280, 76),
+        b = [("c", 200, 92, 40), ("l", 200, 140, 200, 300), ("l", 200, 170, 142, 262), ("l", 200, 170, 258, 262),
              ("l", 200, 300, 148, 384), ("l", 148, 384, 176, 468), ("l", 200, 300, 258, 376), ("l", 258, 376, 236, 466)]
         shadow = (200, 572, 70)
     else:
@@ -88,6 +89,10 @@ def jumper(pose="air", drop=False, impact=False, scale=1.0):
         else:
             w = 34 if (e[1], e[2]) in [(200, 140), (200, 198)] else 24
             s.append(f'<path d="M{e[1]} {e[2]} L{e[3]} {e[4]}" stroke="{INK}" stroke-width="{w}" stroke-linecap="round"/>')
+    if pose == "air":
+        s.insert(2, f'<path d="M142 262 C40 560 360 560 258 262" fill="none" stroke="{V}" stroke-width="6" stroke-linecap="round"/>')
+    hy = 92 if pose == "air" else 150
+    s.append(f'<path d="M168 {hy-18} C130 {hy-10} 122 {hy+30} 140 {hy+56}" fill="none" stroke="{INK}" stroke-width="16" stroke-linecap="round"/>')
     if impact:
         for x1, x2 in [(110, 70), (290, 330)]:
             s.append(f'<path d="M{x1} 548 L{x2} 520" stroke="{AMBER}" stroke-width="7" stroke-linecap="round"/>')
@@ -123,7 +128,7 @@ def trace(kind, w=820, h=150):
 
 
 def sports(active):
-    rows = [("high", "Risque élevé", "Trampoline · course à pied · CrossFit · corde à sauter · gymnastique · basket", "À-coups, sauts répétés : hyperpression importante"),
+    rows = [("high", "Risque élevé", "Trampoline · course à pied · CrossFit · corde&nbsp;à&nbsp;sauter · gymnastique · basket", "À-coups, sauts répétés : hyperpression importante"),
             ("mid", "Risque intermédiaire", "Roller · vélo · randonnée", "Pression modérée ou continue, sans rebonds"),
             ("low", "Risque faible", "Natation · Pilates · marche douce", "Peu ou pas d'impact, corps soutenu")]
     html = []
@@ -151,11 +156,20 @@ def frame(kicker, title, art, caption="", mark=None, note=""):
     </div>'''
 
 
+def stack(lines, accent_last=True, small=None):
+    out = []
+    for i, l in enumerate(lines):
+        col = V if (accent_last and i == len(lines) - 1) else INK
+        out.append(f'<div class="stk" style="color:{col}">{l}</div>')
+    sm = f'<div class="stk-s">{small}</div>' if small else ''
+    return f'<div class="stack">{"".join(out)}{sm}</div>'
+
+
 F = [
-    # board 1 — hook
-    frame("Incontinence urinaire d'effort", "Une fuite pendant un saut&nbsp;?", jumper("air")),
-    frame("Incontinence urinaire d'effort", "Une fuite pendant un saut&nbsp;?", jumper("land", drop=True, impact=True), caption="Ce n'est pas un hasard."),
-    frame("", "C'est de la mécanique.", lens(), mark="mécanique"),
+    # board 1 — hook (paradox first, explanation later)
+    frame("", "", stack(["Gainage.", "CrossFit.", "Abdos en béton."])),
+    frame("", "Et pourtant, elle fuit.", jumper("land", drop=True, impact=True), mark="fuit"),
+    frame("Pourquoi&nbsp;?", "Une histoire de pression", lens(), mark="pression"),
     # board 2 — pression
     frame("Le caisson abdominal", "Quatre parois, une pression", canister(p=0.08)),
     frame("Saut&nbsp;· foulée&nbsp;· charge", "La pression monte <span style='white-space:nowrap'>par à-coups</span>", canister(p=0.26, arrows_down=3, labels="pia")),
@@ -185,30 +199,32 @@ body { font-family: "HL Display", sans-serif; color: #0a0a0f; -webkit-font-smoot
 .kf { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; text-align: center; }
 .mark { position: absolute; left: 0; right: 0; top: 286px; text-align: center; font-weight: 500; font-size: 36px; letter-spacing: -0.03em; z-index: 5; }
 .mark i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #7a29ff; margin: 0 5px; vertical-align: middle; }
-.top { margin-top: 400px; width: 860px; display: flex; flex-direction: column; align-items: center; gap: 18px; min-height: 250px; }
-.kicker { font-size: 30px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: #7a29ff; }
-.title { font-size: 84px; line-height: 1.0; font-weight: 500; letter-spacing: -0.035em; }
+.top { margin-top: 330px; width: 900px; display: flex; flex-direction: column; align-items: center; gap: 34px; min-height: 340px; }
+.kicker { font-size: 36px; font-weight: 500; letter-spacing: 0.1em; line-height: 1.3; text-transform: uppercase; color: #7a29ff; }
+.title { font-size: 112px; line-height: 1.1; font-weight: 500; letter-spacing: -0.018em; word-spacing: 0.06em; }
 .hl { background: linear-gradient(#e2d1ff, #e2d1ff) 0 85% / 100% 62% no-repeat; padding: 0 0.05em; }
-.mid { flex: 1; width: 100%; display: flex; align-items: center; justify-content: center; max-height: 900px; }
-.bot { height: 300px; width: 860px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
-.cap { font-size: 44px; line-height: 1.2; color: #374151; letter-spacing: -0.02em; }
+.mid { flex: 1; width: 100%; display: flex; align-items: center; justify-content: center; max-height: 900px; padding-top: 30px; }
+.bot { height: 330px; width: 900px; display: flex; flex-direction: column; align-items: center; gap: 20px; padding-top: 40px; }
+.cap { font-size: 54px; line-height: 1.3; font-weight: 500; word-spacing: 0.04em; color: #374151; letter-spacing: -0.02em; }
 .lensbox { position: relative; width: 880px; height: 860px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
 .ghost { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -58%); opacity: 0.12; }
 .iris { position: relative; width: 640px; height: 640px; border-radius: 50%; overflow: hidden; border: 6px solid #7a29ff; background: #fcfbfe;
   display: flex; align-items: center; justify-content: center; }
 .lens-art { width: 640px; height: 570px; }
-.rows { display: flex; flex-direction: column; gap: 40px; align-items: center; width: 880px; }
-.row { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.row-t { font-size: 46px; font-weight: 500; letter-spacing: -0.02em; }
-.row-s { font-size: 32px; color: #0a0a0f; max-width: 820px; line-height: 1.3; }
-.row-m { font-size: 28px; color: #6b7280; }
+.rows { display: flex; flex-direction: column; gap: 56px; align-items: center; width: 900px; }
+.row { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.row-t { line-height: 1.15; font-size: 58px; font-weight: 500; letter-spacing: -0.02em; }
+.row-s { font-size: 40px; color: #0a0a0f; max-width: 900px; line-height: 1.35; font-weight: 500; word-spacing: 0.04em; }
+.stack { display: flex; flex-direction: column; align-items: center; gap: 22px; margin-top: -160px; }
+.stk { font-size: 132px; font-weight: 500; letter-spacing: -0.025em; word-spacing: 0.06em; line-height: 1.12; }
+.stk-s { font-size: 54px; color: #6b7280; margin-top: 30px; }
+.row-m { font-size: 34px; line-height: 1.35; color: #6b7280; }
 '''
 
 clips = "\n".join(f'<section class="clip" id="k{i}" data-start="{i}" data-duration="1" data-track-index="1">{f}</section>' for i, f in enumerate(F))
 html = f'''<!doctype html><html lang="fr"><head><meta charset="UTF-8"/><meta name="viewport" content="width=1080, height=1920"/>
 <title>Storyboard keyframes</title><script src="assets/vendor/gsap.min.js"></script><style>{CSS}</style></head><body>
 <div id="root" data-composition-id="main" data-start="0" data-duration="{len(F)}" data-width="1080" data-height="1920">
-<div class="mark">hey<i></i>lilie</div>
 {clips}
 </div>
 <script>const tl = gsap.timeline({{ paused: true }}); window.__timelines["main"] = tl;</script>

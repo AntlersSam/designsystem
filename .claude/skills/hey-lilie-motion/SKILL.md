@@ -80,6 +80,24 @@ chrome, grain), write `script.json`, then steps 3–6.
   *rewind* (the same shot replayed with one variable changed), *takeover*
   (a colour floods from an object). Write the move in the storyboard.
 
+**Hook first (feedback 13/10)**
+- 0–5 s is a hook, not an explanation: a paradox, a contradiction or a
+  surprising image the target recognises ("Gainage. CrossFit. Abdos en béton."
+  → "Et pourtant, elle fuit." → "Pourquoi ?"). The teaching starts only after
+  the question is posed. Full-bleed type, no logo, no chapter label.
+- No brand mark on screen during the film; the brand lives in the end card.
+
+**Type size & spacing (feedback 13/10: "textes ultra rapprochés")**
+- Titles 112 px, line-height 1.1, letter-spacing −0.018em, word-spacing
+  +0.06em. Kicker 36 px caps, tracking +0.1em. Captions 54 px, line-height 1.3.
+  Hook stack 132 px, line-height 1.12. Never below 34 px.
+- Never tighten tracking below −0.025em with Neue Haas Display: word gaps
+  collapse ("Etpourtant").
+- Vertical rhythm: kicker → title 34 px, title block → drawing ≥ 60 px,
+  drawing → caption ≥ 40 px, rows of a list ≥ 56 px apart.
+- Labels on a drawing keep ≥ 24 px from any stroke; move them outside a shape
+  when the shape moves (a sagging floor drags its labels into the wall).
+
 **World & camera**
 - One tall `#world` of stacked 1080×1920 `.frame`s. Change scene by moving the
   camera (`HL.frames(...).go(i, t)`, 1.4 s `hl.cam`), starting ~0.85 s before
@@ -173,6 +191,12 @@ Check the licence covers video/motion use. Until then **Inter Tight** stands in.
 
 ## Voice
 
-Natural voice matters more than any animation. Prefer, in order: a real
-recorded voice, Gemini TTS / ElevenLabs (export one wav per clip, set
-`voice.engine: "file"`), Kokoro `ff_siwis` (local fallback). Speed ≈ 1.05.
+**House voice: ElevenLabs "Perle — Premium French Corporate Voice"
+(`voice_id UaGvaD7NWzU5mJNoUqoY`), model `eleven_v4`** (validated 13/10).
+Generate through the ElevenLabs connector (`creative_create_flow` once per
+film, then `creative_generate_speech` per narration clip on that flow; 4 takes
+each, pick one), download the take's `content_url` (storage.googleapis.com is
+reachable; api.elevenlabs.io is not) to `assets/vo/<scene>_<n>.mp3`, convert to
+wav with ffmpeg, set `voice.engine: "file"`, then run `build.py`.
+v4 prompting: punctuation and "…" for pauses, `[pause]` tags allowed, numbers
+written normally. Kokoro `ff_siwis` stays as an offline fallback only.
