@@ -1,6 +1,9 @@
 # Fuites urinaires à l'effort — storyboard (v0, à valider)
 
-Format : Reel 9:16, ~60–70 s, grammaire `hey-lilie-motion`. Pas de « Limite »
+Format : Reel 9:16, ~60–70 s, grammaire `hey-lilie-motion`.
+Public : **kinésithérapeutes et professionnels de santé** → vocabulaire clinique
+(incontinence urinaire d'effort, pression intra-abdominale, synergie
+abdomino-périnéale), sans vulgarisation patiente. Pas de « Limite »
 ici (ce n'est pas un décryptage d'étude) : la vidéo explique un **mécanisme**,
 donc tout passe par une seule coupe anatomique simplifiée qui vit d'un bout à
 l'autre (Osmosis / Kurzgesagt), puis par une échelle de risque par sport.
@@ -14,7 +17,7 @@ gris clair. La pression = remplissage + couleur (paper → violet → ambre).
 
 ## hook — frame 0 · transition in: none
 
-vo[0]: "Une fuite pendant un saut ? Ce n'est pas un hasard : c'est de la mécanique."
+vo[0]: "Une fuite pendant un saut ? Chez vos patientes sportives, ce n'est pas un hasard : c'est de la mécanique."
   idea:      une silhouette au trait qui saute ; à l'impact, une goutte tombe
   elements:  silhouette, goutte, "C'est de la mécanique."
   lands on:  "saut" → la silhouette atterrit (squash léger, hl.out)
@@ -23,7 +26,7 @@ vo[0]: "Une fuite pendant un saut ? Ce n'est pas un hasard : c'est de la mécani
 
 ## pression — frame 1 · transition in: camera zoom into the abdomen (match cut)
 
-vo[0]: "À chaque saut, chaque foulée, chaque charge soulevée, la pression monte brutalement dans l'abdomen."
+vo[0]: "À chaque saut, chaque foulée, chaque charge soulevée, la pression intra-abdominale monte brutalement."
   idea:      la caméra plonge dans le ventre de la silhouette → le caisson en coupe
   elements:  4 parois dessinées une à une, labels sur le dessin (≤ 4)
   lands on:  "saut" / "foulée" / "charge" → 3 impulsions : le caisson se remplit par à-coups
@@ -33,7 +36,7 @@ vo[0]: "À chaque saut, chaque foulée, chaque charge soulevée, la pression mon
 
 ## perinee — frame 1 (même coupe) · transition in: none (la caméra glisse vers le bas du caisson)
 
-vo[0]: "En bas, le périnée agit comme un hamac : il doit se contracter au bon moment et faire contre-appui pour tenir la vessie et l'urètre."
+vo[0]: "En bas, le plancher pelvien agit comme un hamac : il doit se contracter en synergie et faire contre-appui pour maintenir vessie, urètre et sphincter."
   idea:      le plancher devient un hamac élastique ; il remonte en même temps que la pression descend
   elements:  hamac violet, vessie, urètre, label "contre-appui"
   lands on:  "hamac" → le trait du périnée se redessine en courbe de hamac
@@ -90,6 +93,6 @@ vo[0]: "Enregistrez cette vidéo, et suivez Hé Lilie."
 ---
 
 Questions ouvertes :
-1. Public : patientes / grand public, ou kinés (alors on peut nommer « incontinence urinaire d'effort », « PIA », « synergie abdomino-périnéale ») ?
-2. Faut-il une ouverture « ça se rééduque » en fin de vidéo ? Ce n'est pas dans le texte source — à ajouter seulement si tu le souhaites, avec la formulation que tu valides.
+1. ~~Public~~ → kinés / professionnels de santé (validé).
+2. Faut-il une ouverture « prise en charge » en fin de vidéo ? Ce n'est pas dans le texte source — à ajouter seulement avec la formulation que tu valides.
 3. Source à afficher à l'écran ?

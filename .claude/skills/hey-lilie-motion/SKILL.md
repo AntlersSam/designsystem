@@ -11,6 +11,13 @@ grammar is the explainer channels' (Vox, Kurzgesagt, Osmosis): one continuous
 world, text that slides out of masks, a highlighter on the key word, diagrams
 that draw themselves on the word that names them.
 
+**Audience: always physiotherapists (kinésithérapeutes) and other health
+professionals.** Speak to peers: clinical vocabulary is expected and must be
+exact (dyspareunie, IUE, PIA, synergie abdomino-périnéale, niveau de preuve),
+nothing is simplified into patient language, and every claim stays faithful to
+the source — limits and level of evidence are stated, never softened. Address
+the viewer with "vous"; the CTA serves their practice (save, apply, train).
+
 It must never look like an app. **No cards, badges, pills, shadows, icon grids,
 dashboards, glassmorphism, bounce or elastic.** If a frame could be a UI
 screenshot, it is wrong.
