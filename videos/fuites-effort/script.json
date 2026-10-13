@@ -1,0 +1,73 @@
+{
+  "title": "Fuites urinaires à l'effort : le mécanisme",
+  "audience": "kinésithérapeutes et professionnels de santé",
+  "voice": {
+    "engine": "file",
+    "provider": "elevenlabs",
+    "model": "eleven_v4",
+    "voice_id": "UaGvaD7NWzU5mJNoUqoY",
+    "name": "Perle"
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "vo": [
+        "Gainage tous les jours… abdos en béton… et pourtant, elle fuit au premier saut. [pause] Pourquoi ? Parce que la continence, c'est une histoire de pression."
+      ],
+      "breath": 0.9
+    },
+    {
+      "id": "caisson",
+      "vo": [
+        "Imaginez le tronc comme un caisson : le diaphragme en haut, les abdominaux devant, le rachis derrière… et le plancher pelvien en bas.",
+        "À chaque saut, chaque foulée, chaque charge soulevée, la pression intra-abdominale monte brutalement."
+      ],
+      "breath": 0.6
+    },
+    {
+      "id": "perinee",
+      "vo": [
+        "Le plancher pelvien agit comme un hamac : il doit se contracter en synergie, et faire contre-appui pour maintenir vessie, urètre et sphincter."
+      ],
+      "breath": 0.8
+    },
+    {
+      "id": "defaut",
+      "vo": [
+        "Mais s'il est trop faible, fatigué, ou mal coordonné face à une sangle abdominale trop puissante… il n'absorbe plus l'onde de choc."
+      ],
+      "breath": 0.35
+    },
+    {
+      "id": "fuite",
+      "vo": [
+        "La pression repousse alors l'urètre vers le bas. L'étanchéité n'est plus assurée : c'est la fuite.",
+        "Plus rarement, lors d'efforts extrêmes, ce peuvent être des gaz ou des selles."
+      ],
+      "breath": 1.1
+    },
+    {
+      "id": "sports",
+      "vo": [
+        "Et tous les sports ne se valent pas.",
+        "Risque élevé : trampoline, course à pied, CrossFit, corde à sauter, gymnastique, basket. Des sauts répétés, des à-coups, une forte hyperpression.",
+        "Risque intermédiaire : roller, vélo, randonnée. Une pression modérée ou continue, sans rebonds violents.",
+        "Risque faible : natation, Pilates, marche douce. Peu ou pas d'impact, et un corps soutenu."
+      ],
+      "breath": 1.0
+    },
+    {
+      "id": "retenir",
+      "vo": [
+        "À retenir : la fuite d'effort, c'est un déséquilibre entre la pression qui pousse… et le plancher pelvien qui retient."
+      ],
+      "breath": 0.7
+    },
+    {
+      "id": "cta",
+      "vo": [
+        "Enregistrez cette vidéo pour vos prochaines séances."
+      ]
+    }
+  ]
+}

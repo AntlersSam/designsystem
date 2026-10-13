@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>Fuites urinaires à l'effort — Hey Lilie</title>
+    <script src="assets/vendor/gsap.min.js"></script>
+    <script src="assets/vendor/CustomEase.min.js"></script>
+    <script src="assets/vendor/SplitText.min.js"></script>
+    <script src="assets/vendor/DrawSVGPlugin.min.js"></script>
+    <script src="assets/vendor/hl-motion.js"></script>
+    <style>
+/* @hl:css */
+/* Hey Lilie — motion kit (9:16, 1080×1920)
+ * Editorial explainer look: paper, ink, one violet accent, one amber alert.
+ * No cards, no badges, no shadows. Type and drawings carry the information.
+ *
+ * Fonts: the brand face is Neue Haas Grotesk (Display for titles, Text for body).
+ * Drop licensed woff2 files in assets/fonts/ (see kit/fonts/README.md).
+ * build.py inlines this file into index.html and rewrites the @font-face
+ * block when Neue Haas files are present. Until then Inter Tight stands in.
+ */
+
+/* @hl-fonts:start */
+@font-face { font-family: "HL Display"; font-weight: 400; src: url("assets/fonts/nhg-display-55.otf") format("opentype"); }
+@font-face { font-family: "HL Display"; font-weight: 500 800; src: url("assets/fonts/nhg-display-65.otf") format("opentype"); }
+@font-face { font-family: "HL Text"; font-weight: 400; src: url("assets/fonts/nhg-display-55.otf") format("opentype"); }
+@font-face { font-family: "HL Text"; font-weight: 500 800; src: url("assets/fonts/nhg-display-65.otf") format("opentype"); }
+/* @hl-fonts:end */
+
+:root {
+  /* brand (Hey Lilie design system v2) */
+  --violet: #7a29ff;
+  --violet-700: #6620e0;
+  --violet-500: #9147ff;
+  --violet-300: #b48cff;
+  --violet-200: #d7c2ff;
+  --violet-100: #f0e8ff;
+  --marker: #e2d1ff;          /* highlighter behind ink, multiply-safe */
+  --ink: #0a0a0f;             /* gray-950 */
+  --ink-2: #374151;           /* gray-700 */
+  --ink-3: #6b7280;           /* gray-500 */
+  --line: #d1d5db;            /* gray-300 */
+  --paper: #fcfbfe;           /* white, a breath of violet */
+  --alert: #b45309;           /* "Limite" ink — amber, AA on paper */
+  --alert-line: #d97706;
+  --ok: #047857;
+  --no: #b91c1c;
+
+  /* 9:16 grid — essentials stay inside x 90–940, y 285–1450 */
+  --m-left: 96px;
+  --m-right: 140px;
+  --safe-top: 300px;
+  --safe-bottom: 470px;
+
+  /* type scale for a phone held at arm's length */
+  --t-hero: 136px;
+  --t-h1: 104px;
+  --t-h2: 80px;
+  --t-lead: 52px;
+  --t-label: 40px;
+  --t-small: 34px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--paper); }
+body { font-family: "HL Text", sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+#root { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--paper); }
+
+/* ---------- world & camera ---------- */
+.world { position: absolute; left: 0; top: 0; width: 1080px; will-change: transform; }
+.frame { position: relative; width: 1080px; height: 1920px; }
+.safe { position: absolute; left: var(--m-left); right: var(--m-right); top: var(--safe-top); bottom: var(--safe-bottom); }
+
+/* ---------- texture: paper grain, jittered at 12 fps by HL.grain ---------- */
+.grain { position: absolute; inset: -120px; pointer-events: none; z-index: 50; opacity: 0.045; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1.2 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size: 320px 320px; }
+.vignette { position: absolute; inset: 0; pointer-events: none; z-index: 49;
+  background: radial-gradient(120% 80% at 50% 45%, rgba(255,255,255,0) 60%, rgba(122,41,255,0.035) 100%); }
+
+/* ---------- chrome: brand mark + chapter (outside the world, never moves) ----------
+ * .chrome-bg is a paper band the world scrolls under, so moving text never
+ * collides with the brand mark during camera moves. */
+.chrome-bg { position: absolute; left: 0; right: 0; top: 0; height: 410px; z-index: 39; pointer-events: none;
+  background: linear-gradient(180deg, var(--paper) 0%, var(--paper) 76%, rgba(252, 251, 254, 0) 100%); }
+.chrome { position: absolute; left: var(--m-left); right: var(--m-right); top: 300px; z-index: 40;
+  display: flex; justify-content: space-between; align-items: baseline; }
+.mark { font-family: "HL Display"; font-weight: 700; font-size: 40px; letter-spacing: -0.035em; color: var(--ink); display: flex; align-items: center; }
+.mark i { display: inline-block; width: 11px; height: 11px; border-radius: 50%; background: var(--violet); margin: 0 5px; }
+.chapter { position: relative; height: 40px; overflow: hidden; min-width: 360px; text-align: right; }
+.chapter span { position: absolute; right: 0; top: 0; display: block; white-space: nowrap; font-family: "HL Text"; font-weight: 600;
+  font-size: 30px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+.chapter b { color: var(--violet); font-weight: 600; margin-right: 12px; }
+
+/* ---------- type ---------- */
+.hero, .h1, .h2 { font-family: "HL Display"; font-weight: 700; color: var(--ink); }
+.hero { font-size: var(--t-hero); line-height: 0.94; letter-spacing: -0.045em; }
+.h1 { font-size: var(--t-h1); line-height: 0.98; letter-spacing: -0.04em; }
+.h2 { font-size: var(--t-h2); line-height: 1.02; letter-spacing: -0.035em; }
+.lead { font-size: var(--t-lead); line-height: 1.22; font-weight: 500; color: var(--ink-2); letter-spacing: -0.02em; }
+.label { font-size: var(--t-label); line-height: 1.2; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; }
+.small { font-size: var(--t-small); line-height: 1.3; font-weight: 500; color: var(--ink-3); }
+.kicker { font-size: 30px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--violet); }
+.v { color: var(--violet); }
+.dim { color: var(--ink-3); }
+
+/* masked line reveal — HL.lines wraps each line itself; this is for hand-built lines */
+.ml { display: block; overflow: hidden; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+.ml > span { display: block; }
+
+/* highlighter & underline are BACKGROUNDS of an inline span, so they follow the
+ * text across line breaks (box-decoration-break: clone) and sit behind the ink.
+ *   <span class="hl">mot clé</span>     <span class="ul">mot clé</span>
+ * HL.mark / HL.under grow background-size from 0% to 100% — never set it in CSS.
+ * Keep them above the descender (≤ 88%): SplitText's line masks clip below it. */
+.hl, .ul { background-repeat: no-repeat; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.hl { background-image: linear-gradient(var(--marker), var(--marker)); background-position: 0 85%; background-size: 0% 62%;
+  padding: 0 0.05em; margin: 0 -0.05em; }
+.ul { background-image: linear-gradient(var(--ul, var(--violet)), var(--ul, var(--violet))); background-position: 0 86%; background-size: 0% 0.075em; }
+/* keeps a word and its asterisk together: <span class="nw">mot<sup class="ast">*</sup></span> */
+.nw { white-space: nowrap; }
+
+/* strike: <span class="st">mot<i class="st-bar"></i></span> */
+.st { position: relative; display: inline-block; }
+.st-bar { position: absolute; left: -0.04em; right: -0.04em; top: 52%; height: 0.09em; border-radius: 0.05em;
+  background: var(--ink); transform-origin: 0 50%; display: block; }
+
+/* ---------- the "Limite" footnote device (same every time) ----------
+ * <sup class="ast">*</sup> after the claim + .note at the bottom of the safe area */
+.ast { display: inline-block; color: var(--alert-line); font-weight: 700; font-size: 0.7em; vertical-align: super; line-height: 0; margin-left: 0.04em; }
+.note { position: absolute; left: 0; right: 0; bottom: 0; }
+.note-rule { display: block; height: 3px; width: 100%; background: var(--alert-line); transform-origin: 0 50%; margin-bottom: 26px; }
+.note-k { display: block; overflow: hidden; font-size: 30px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--alert); margin-bottom: 10px; }
+.note-k > span { display: block; }
+.note-t { font-size: 46px; line-height: 1.22; font-weight: 500; color: var(--ink); letter-spacing: -0.015em; }
+
+/* ---------- drawings ---------- */
+svg.draw { overflow: visible; }
+svg.draw .ink { fill: none; stroke: var(--ink); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+svg.draw .ink-v { fill: none; stroke: var(--violet); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+svg.draw .ink-l { fill: none; stroke: var(--line); stroke-width: 4; stroke-linecap: round; }
+svg.draw .arc { fill: none; stroke-width: 36; }
+svg.draw .ink-a { fill: none; stroke: var(--alert-line); stroke-width: 6; stroke-linecap: round; }
+.tag { position: absolute; font-size: var(--t-label); font-weight: 600; color: var(--ink); white-space: nowrap; letter-spacing: -0.01em; }
+
+/* /@hl:css */
+
+      /* ---------- film layout: everything on the vertical axis ---------- */
+      .layer { position: absolute; inset: 0; }
+      .ttl { position: absolute; left: 90px; right: 90px; top: 330px; display: flex; flex-direction: column; align-items: center; gap: 34px; text-align: center; z-index: 10; }
+      .kk { font-family: "HL Text"; font-weight: 500; font-size: 36px; letter-spacing: 0.1em; line-height: 1.3; text-transform: uppercase; color: var(--violet); }
+      .tt { font-family: "HL Display"; font-weight: 500; font-size: 112px; line-height: 1.1; letter-spacing: -0.018em; word-spacing: 0.06em; color: var(--ink); }
+      .nb { white-space: nowrap; }
+
+      /* hook */
+      #hk-stack { position: absolute; left: 0; right: 0; top: 640px; display: flex; flex-direction: column; align-items: center; gap: 22px; }
+      #hk-stack .ml > span { font-family: "HL Display"; font-weight: 500; font-size: 132px; line-height: 1.12; letter-spacing: -0.025em; word-spacing: 0.06em; }
+      #runner { position: absolute; left: 320px; top: 760px; width: 440px; height: 660px; transform-origin: 51% 50%; }
+      #runner svg { position: absolute; inset: 0; }
+
+      /* anatomy */
+      #art { position: absolute; inset: 0; z-index: 5; }
+      #view { position: absolute; left: 0; right: 0; top: 690px; height: 780px; overflow: hidden; }
+      #cam { position: absolute; left: 40px; top: 10px; width: 1000px; height: 729px; transform-origin: 50% 50%; }
+      #ring { position: absolute; left: 220px; top: 720px; width: 640px; height: 640px; border-radius: 50%; border: 6px solid var(--violet); z-index: 6; }
+      #cn text { font-family: "HL Display"; font-weight: 500; }
+
+      /* caption */
+      #cap { position: absolute; left: 110px; right: 110px; top: 1330px; text-align: center; font-family: "HL Text"; font-weight: 500; font-size: 52px; line-height: 1.3; word-spacing: 0.04em; color: var(--ink-2); z-index: 10; }
+
+      /* sports */
+      #morph { position: absolute; inset: 0; z-index: 6; }
+      .rl { position: absolute; left: 0; right: 0; text-align: center; font-family: "HL Display"; font-weight: 500; font-size: 46px; letter-spacing: -0.01em; z-index: 7; }
+      #rl-high { top: 690px; color: #b45309; }
+      #rl-mid { top: 920px; color: var(--violet); }
+      #rl-low { top: 1110px; color: var(--violet-500); }
+      .det { position: absolute; left: 90px; right: 90px; top: 1270px; display: flex; flex-direction: column; align-items: center; gap: 18px; text-align: center; z-index: 7; }
+      .det .sp { display: flex; flex-wrap: wrap; justify-content: center; column-gap: 26px; row-gap: 6px; max-width: 900px; }
+      .det .sp .ml > span { font-family: "HL Display"; font-weight: 500; font-size: 44px; line-height: 1.25; color: var(--ink); }
+      .det .mc .ml > span { font-family: "HL Text"; font-size: 34px; line-height: 1.35; color: var(--ink-3); }
+
+      /* takeover + end card */
+      #take { position: absolute; inset: 0; z-index: 30; background: var(--violet); }
+      #take .ttl .kk { color: rgba(255, 255, 255, 0.85); }
+      #take .tt { color: #fff; font-size: 100px; }
+      #bal { position: absolute; left: 0; top: 760px; width: 1080px; height: 640px; }
+      #bal text { font-family: "HL Display"; font-weight: 500; font-size: 46px; fill: #fff; }
+      #end { position: absolute; left: 0; right: 0; top: 700px; display: flex; flex-direction: column; align-items: center; gap: 70px; text-align: center; }
+      #end-mark { font-family: "HL Display"; font-weight: 500; font-size: 170px; letter-spacing: -0.04em; color: #fff; display: flex; align-items: center; }
+      #end-mark i { display: inline-block; width: 40px; height: 40px; border-radius: 50%; background: #fff; margin: 0 18px; }
+      #end-save { display: flex; flex-direction: column; align-items: center; gap: 30px; }
+      #end-save svg { width: 80px; height: 80px; }
+      #end-save .ml > span { font-family: "HL Display"; font-weight: 500; font-size: 60px; line-height: 1.2; color: #fff; max-width: 860px; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-hl-root data-composition-id="main" data-start="0" data-duration="96.1" data-width="1080" data-height="1920">
+
+      <!-- ===== hook ===== -->
+      <div id="hook" class="layer">
+        <div id="hk-stack">
+          <span class="ml"><span>Gainage.</span></span>
+          <span class="ml"><span>CrossFit.</span></span>
+          <span class="ml"><span class="v">Abdos en béton.</span></span>
+        </div>
+        <div id="runner">
+          <svg id="pose-air" viewBox="0 0 400 600">
+            <ellipse cx="200" cy="572" rx="70" ry="12" fill="#f0e8ff" />
+            <path d="M40 562 L360 562" stroke="#d1d5db" stroke-width="5" stroke-linecap="round" />
+            <path d="M142 262 C40 560 360 560 258 262" fill="none" stroke="#7a29ff" stroke-width="6" stroke-linecap="round" />
+            <circle cx="200" cy="92" r="40" fill="#0a0a0f" />
+            <path d="M168 74 C130 82 122 122 140 148" fill="none" stroke="#0a0a0f" stroke-width="16" stroke-linecap="round" />
+            <g stroke="#0a0a0f" stroke-linecap="round">
+              <path d="M200 140 L200 300" stroke-width="34" /><path d="M200 170 L142 262" stroke-width="24" /><path d="M200 170 L258 262" stroke-width="24" />
+              <path d="M200 300 L148 384 L176 468" stroke-width="24" fill="none" stroke-linejoin="round" /><path d="M200 300 L258 376 L236 466" stroke-width="24" fill="none" stroke-linejoin="round" />
+            </g>
+          </svg>
+          <svg id="pose-land" viewBox="0 0 400 600">
+            <ellipse cx="205" cy="566" rx="110" ry="12" fill="#f0e8ff" />
+            <path d="M40 562 L360 562" stroke="#d1d5db" stroke-width="5" stroke-linecap="round" />
+            <circle cx="200" cy="150" r="40" fill="#0a0a0f" />
+            <path d="M168 132 C130 140 122 180 140 206" fill="none" stroke="#0a0a0f" stroke-width="16" stroke-linecap="round" />
+            <g stroke="#0a0a0f" stroke-linecap="round">
+              <path d="M200 198 L206 352" stroke-width="34" /><path d="M200 230 L138 300" stroke-width="24" /><path d="M200 230 L268 298" stroke-width="24" />
+              <path d="M206 352 L146 440 L166 548" stroke-width="24" fill="none" stroke-linejoin="round" /><path d="M206 352 L266 438 L246 548" stroke-width="24" fill="none" stroke-linejoin="round" />
+            </g>
+            <g id="impact" stroke="#d97706" stroke-width="7" stroke-linecap="round">
+              <path d="M110 548 L70 520" /><path d="M110 556 L64 556" /><path d="M290 548 L330 520" /><path d="M290 556 L336 556" />
+            </g>
+            <path id="hk-drop" d="M206 392 C192 414 190 432 206 438 C222 432 220 414 206 392 Z" fill="#9147ff" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- ===== titles (one slot, swapped on the voice) ===== -->
+      <div class="ttl" id="t-fuit"><h2 class="tt">Et pourtant, elle <span class="hl">fuit</span>.</h2></div>
+      <div class="ttl" id="t-why"><div class="kk"><span class="ml"><span>Pourquoi&nbsp;?</span></span></div><h2 class="tt">Une histoire de <span class="hl">pression</span></h2></div>
+      <div class="ttl" id="t-caisson"><div class="kk"><span class="ml"><span>Le caisson abdominal</span></span></div><h2 class="tt">Quatre parois, une pression</h2></div>
+      <div class="ttl" id="t-pia"><div class="kk"><span class="ml"><span>Saut&nbsp;· foulée&nbsp;· charge</span></span></div><h2 class="tt">La pression monte <span class="nb">par à-coups</span></h2></div>
+      <div class="ttl" id="t-hamac"><div class="kk"><span class="ml"><span>Plancher pelvien</span></span></div><h2 class="tt">Un hamac musculaire</h2></div>
+      <div class="ttl" id="t-syn"><div class="kk"><span class="ml"><span>Synergie abdomino-périnéale</span></span></div><h2 class="tt">Il se contracte et fait <span class="hl">contre-appui</span></h2></div>
+      <div class="ttl" id="t-def"><div class="kk"><span class="ml"><span>Si le plancher pelvien est</span></span></div><h2 class="tt">faible&nbsp;· fatigué&nbsp;· mal&nbsp;coordonné</h2></div>
+      <div class="ttl" id="t-onde"><div class="kk"><span class="ml"><span>Sangle abdominale trop puissante</span></span></div><h2 class="tt">Le choc n'est <span class="hl">plus amorti</span></h2></div>
+      <div class="ttl" id="t-fuite"><div class="kk"><span class="ml"><span>Incontinence urinaire d'effort</span></span></div><h2 class="tt">La fuite</h2></div>
+      <div class="ttl" id="t-sports"><div class="kk"><span class="ml"><span>Niveau de risque par sport</span></span></div><h2 class="tt">Tous les sports ne se valent pas</h2></div>
+      <div class="ttl" id="t-high"><div class="kk"><span class="ml"><span>Niveau de risque par sport</span></span></div><h2 class="tt">Élevé</h2></div>
+      <div class="ttl" id="t-mid"><div class="kk"><span class="ml"><span>Niveau de risque par sport</span></span></div><h2 class="tt">Intermédiaire</h2></div>
+      <div class="ttl" id="t-low"><div class="kk"><span class="ml"><span>Niveau de risque par sport</span></span></div><h2 class="tt">Faible ou nul</h2></div>
+
+      <!-- ===== the abdominal cutaway (one drawing, many states) ===== -->
+      <div id="art">
+        <div id="view"><div id="cam">
+          <svg id="cn" viewBox="-210 40 1290 940" width="1000" height="729">
+            <path id="cn-region" fill="#7a29ff" fill-opacity="0.08" />
+            <g id="cn-top">
+              <g id="cn-spine" fill="#fff" stroke="#d1d5db" stroke-width="5"></g>
+              <path id="cn-dia" d="M170 250 Q400 110 630 250" fill="none" stroke="#0a0a0f" stroke-width="7" stroke-linecap="round" />
+              <path id="cn-abdo" d="M630 250 C705 370 705 560 630 660" fill="none" stroke="#0a0a0f" stroke-width="16" stroke-linecap="round" />
+            </g>
+            <g id="cn-waves" fill="none" stroke="#d97706" stroke-width="6" stroke-linecap="round">
+              <path d="M250 470 Q400 560 550 470" /><path d="M204 493 Q400 606 596 493" opacity="0.7" /><path d="M158 516 Q400 652 642 516" opacity="0.4" />
+            </g>
+            <g id="cn-dn" stroke="#9147ff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none">
+              <g><path d="M270 318 L270 448" /><path d="M250 426 L270 452 L290 426" /></g>
+              <g><path d="M400 318 L400 448" /><path d="M380 426 L400 452 L420 426" /></g>
+              <g><path d="M530 318 L530 448" /><path d="M510 426 L530 452 L550 426" /></g>
+            </g>
+            <ellipse id="cn-blad" cx="420" cy="620" rx="100" ry="62" fill="#f0e8ff" stroke="#b48cff" stroke-width="5" />
+            <path id="cn-ureth" stroke="#9ca3af" stroke-width="12" stroke-linecap="round" />
+            <path id="cn-sph" stroke="#7a29ff" stroke-width="9" stroke-linecap="round" />
+            <path id="cn-floor" fill="none" stroke="#7a29ff" stroke-width="14" stroke-linecap="round" />
+            <g id="cn-up" stroke="#7a29ff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none">
+              <g><path id="up-a" /><path id="up-ah" /></g>
+              <g><path id="up-b" /><path id="up-bh" /></g>
+            </g>
+            <path id="cn-drop" fill="#9147ff" />
+            <text id="lb-pia" x="400" y="268" text-anchor="middle" font-size="96" fill="#7a29ff">PIA</text>
+            <g id="lb-parts" font-size="54" letter-spacing="0.2">
+              <text id="lb-dia" x="400" y="118" text-anchor="middle" fill="#0a0a0f">Diaphragme</text>
+              <text id="lb-abdo" x="722" y="470" text-anchor="start" fill="#0a0a0f">Abdominaux</text>
+              <text id="lb-spine" x="108" y="470" text-anchor="end" fill="#6b7280">Rachis</text>
+              <text id="lb-floor" x="400" y="832" text-anchor="middle" fill="#7a29ff">Plancher pelvien</text>
+            </g>
+            <g id="lb-org" font-size="54" letter-spacing="0.2">
+              <text id="lb-ves" text-anchor="middle" font-size="44" fill="#0a0a0f">Vessie</text>
+              <text id="lb-ure" text-anchor="start" fill="#6b7280">Urètre</text>
+              <text id="lb-sph" text-anchor="end" fill="#7a29ff">Sphincter</text>
+            </g>
+          </svg>
+        </div></div>
+        <div id="ring"></div>
+      </div>
+      <p id="cap">Plus rarement&nbsp;: gaz ou selles, lors d'efforts extrêmes.</p>
+
+      <!-- ===== sports: the pressure line becomes the risk scale ===== -->
+      <svg id="morph" viewBox="0 0 1080 1920" width="1080" height="1920">
+        <path id="tr-high" fill="none" stroke="#7a29ff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+        <path id="tr-mid" fill="none" stroke="#7a29ff" stroke-width="9" stroke-linecap="round" />
+        <path id="tr-low" fill="none" stroke="#b48cff" stroke-width="9" stroke-linecap="round" />
+      </svg>
+      <div class="rl" id="rl-high"><span class="ml"><span>Risque élevé</span></span></div>
+      <div class="rl" id="rl-mid"><span class="ml"><span>Risque intermédiaire</span></span></div>
+      <div class="rl" id="rl-low"><span class="ml"><span>Risque faible</span></span></div>
+      <div class="det" id="det-high">
+        <div class="sp"><span class="ml"><span>Trampoline</span></span><span class="ml"><span>Course à pied</span></span><span class="ml"><span>CrossFit</span></span><span class="ml"><span>Corde à sauter</span></span><span class="ml"><span>Gymnastique</span></span><span class="ml"><span>Basket</span></span></div>
+        <div class="mc"><span class="ml"><span>Sauts répétés, à-coups&nbsp;: hyperpression importante</span></span></div>
+      </div>
+      <div class="det" id="det-mid">
+        <div class="sp"><span class="ml"><span>Roller</span></span><span class="ml"><span>Vélo</span></span><span class="ml"><span>Randonnée</span></span></div>
+        <div class="mc"><span class="ml"><span>Pression modérée ou continue, sans rebonds violents</span></span></div>
+      </div>
+      <div class="det" id="det-low">
+        <div class="sp"><span class="ml"><span>Natation</span></span><span class="ml"><span>Pilates</span></span><span class="ml"><span>Marche douce</span></span></div>
+        <div class="mc"><span class="ml"><span>Peu ou pas d'impact, corps soutenu</span></span></div>
+      </div>
+
+      <!-- ===== takeover: à retenir + end card ===== -->
+      <section id="take">
+        <div class="ttl" id="t-ret"><div class="kk"><span class="ml"><span>À retenir</span></span></div><h2 class="tt">Un déséquilibre entre deux forces</h2></div>
+        <svg id="bal" viewBox="0 0 1080 640">
+          <g id="bal-dn" stroke="#fff" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none">
+            <path d="M340 40 L340 300" /><path d="M300 258 L340 304 L380 258" />
+          </g>
+          <g id="bal-up" stroke="#fff" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none">
+            <path d="M740 600 L740 340" /><path d="M700 382 L740 336 L780 382" />
+          </g>
+          <path id="bal-line" d="M180 320 L900 320" stroke="rgba(255,255,255,0.5)" stroke-width="4" stroke-dasharray="2 16" stroke-linecap="round" />
+          <text id="bal-dn-t" x="340" y="380" text-anchor="middle">la pression</text>
+          <text id="bal-dn-t2" x="340" y="436" text-anchor="middle" opacity="0.8" style="font-size:38px">qui pousse</text>
+          <text id="bal-up-t" x="740" y="250" text-anchor="middle">le plancher pelvien</text>
+          <text id="bal-up-t2" x="740" y="196" text-anchor="middle" opacity="0.8" style="font-size:38px">qui retient</text>
+        </svg>
+        <div id="end">
+          <div id="end-mark"><span class="ml"><span>hey</span></span><i></i><span class="ml"><span>lilie</span></span></div>
+          <div id="end-save">
+            <svg viewBox="0 0 80 80"><path id="bm" d="M22 10 H58 V70 L40 55 L22 70 Z" fill="none" stroke="#fff" stroke-width="6" stroke-linejoin="round" /></svg>
+            <span class="ml"><span>Enregistrez cette vidéo pour vos prochaines séances</span></span>
+          </div>
+        </div>
+      </section>
+
+      <div class="vignette"></div>
+      <div class="grain" id="grain" data-layout-allow-overflow></div>
+
+      <!-- @hl:audio -->
+<audio id="vo-hook-0" src="assets/vo/hook_0.wav" data-start="0.3" data-duration="9.6" data-track-index="9"></audio>
+<audio id="vo-caisson-0" src="assets/vo/caisson_0.wav" data-start="10.8" data-duration="8.56" data-track-index="9"></audio>
+<audio id="vo-caisson-1" src="assets/vo/caisson_1.wav" data-start="19.71" data-duration="6.16" data-track-index="9"></audio>
+<audio id="vo-perinee-0" src="assets/vo/perinee_0.wav" data-start="26.47" data-duration="8.56" data-track-index="9"></audio>
+<audio id="vo-defaut-0" src="assets/vo/defaut_0.wav" data-start="35.83" data-duration="7.84" data-track-index="9"></audio>
+<audio id="vo-fuite-0" src="assets/vo/fuite_0.wav" data-start="44.02" data-duration="5.6" data-track-index="9"></audio>
+<audio id="vo-fuite-1" src="assets/vo/fuite_1.wav" data-start="49.97" data-duration="4.56" data-track-index="9"></audio>
+<audio id="vo-sports-0" src="assets/vo/sports_0.wav" data-start="55.63" data-duration="1.84" data-track-index="9"></audio>
+<audio id="vo-sports-1" src="assets/vo/sports_1.wav" data-start="57.82" data-duration="10.32" data-track-index="9"></audio>
+<audio id="vo-sports-2" src="assets/vo/sports_2.wav" data-start="68.49" data-duration="7.04" data-track-index="9"></audio>
+<audio id="vo-sports-3" src="assets/vo/sports_3.wav" data-start="75.88" data-duration="6.8" data-track-index="9"></audio>
+<audio id="vo-retenir-0" src="assets/vo/retenir_0.wav" data-start="83.68" data-duration="7.28" data-track-index="9"></audio>
+<audio id="vo-cta-0" src="assets/vo/cta_0.wav" data-start="91.66" data-duration="2.64" data-track-index="9"></audio>
+<!-- /@hl:audio -->
+    </div>
+
+    <script>
+/* @hl:cues */
+window.HL_TOTAL = 96.1;
+window.HL_CUES = {"hook": [{"start": 0.3, "dur": 9.6, "words": [{"w": "Gainage", "t": 0.3}, {"w": "tous", "t": 0.824}, {"w": "les", "t": 1.151}, {"w": "jours…", "t": 1.413}, {"w": "abdos", "t": 1.906}, {"w": "en", "t": 2.399}, {"w": "béton…", "t": 2.645}, {"w": "et", "t": 3.504}, {"w": "pourtant,", "t": 3.668}, {"w": "elle", "t": 4.342}, {"w": "fuit", "t": 4.582}, {"w": "au", "t": 4.822}, {"w": "premier", "t": 4.966}, {"w": "saut.", "t": 5.35}, {"w": "[pause]", "t": 6.272}, {"w": "Pourquoi?", "t": 6.445}, {"w": "Parce", "t": 7.203}, {"w": "que", "t": 7.484}, {"w": "la", "t": 7.672}, {"w": "continence,", "t": 7.813}, {"w": "c'est", "t": 8.329}, {"w": "une", "t": 8.564}, {"w": "histoire", "t": 8.751}, {"w": "de", "t": 9.173}, {"w": "pression.", "t": 9.314}]}], "caisson": [{"start": 10.8, "dur": 8.56, "words": [{"w": "Imaginez", "t": 10.8}, {"w": "le", "t": 11.229}, {"w": "tronc", "t": 11.372}, {"w": "comme", "t": 11.658}, {"w": "un", "t": 11.944}, {"w": "caisson:", "t": 12.087}, {"w": "le", "t": 12.821}, {"w": "diaphragme", "t": 12.983}, {"w": "en", "t": 13.575}, {"w": "haut,", "t": 13.736}, {"w": "les", "t": 14.106}, {"w": "abdominaux", "t": 14.625}, {"w": "devant,", "t": 16.052}, {"w": "le", "t": 17.095}, {"w": "rachis", "t": 17.095}, {"w": "derrière…", "t": 17.095}, {"w": "et", "t": 17.255}, {"w": "le", "t": 17.445}, {"w": "plancher", "t": 17.636}, {"w": "pelvien", "t": 18.207}, {"w": "en", "t": 18.716}, {"w": "bas.", "t": 18.906}]}, {"start": 19.71, "dur": 6.16, "words": [{"w": "À", "t": 19.71}, {"w": "chaque", "t": 19.833}, {"w": "saut,", "t": 20.265}, {"w": "chaque", "t": 20.574}, {"w": "foulée,", "t": 21.006}, {"w": "chaque", "t": 21.438}, {"w": "charge", "t": 21.869}, {"w": "soulevée,", "t": 22.301}, {"w": "la", "t": 22.857}, {"w": "pression", "t": 23.042}, {"w": "intra-abdominale", "t": 23.597}, {"w": "monte", "t": 24.584}, {"w": "brutalement.", "t": 24.954}]}], "perinee": [{"start": 26.47, "dur": 8.56, "words": [{"w": "Le", "t": 26.47}, {"w": "plancher", "t": 26.634}, {"w": "pelvien", "t": 27.128}, {"w": "agit", "t": 27.566}, {"w": "comme", "t": 27.84}, {"w": "un", "t": 28.169}, {"w": "hamac:", "t": 28.334}, {"w": "il", "t": 28.935}, {"w": "doit", "t": 29.112}, {"w": "se", "t": 29.406}, {"w": "contracter", "t": 29.582}, {"w": "en", "t": 30.229}, {"w": "synergie,", "t": 30.405}, {"w": "et", "t": 30.935}, {"w": "faire", "t": 31.111}, {"w": "contre-appui", "t": 31.464}, {"w": "pour", "t": 32.17}, {"w": "maintenir", "t": 32.464}, {"w": "vessie,", "t": 33.052}, {"w": "urètre", "t": 33.619}, {"w": "et", "t": 34.07}, {"w": "sphincter.", "t": 34.263}]}], "defaut": [{"start": 35.83, "dur": 7.84, "words": [{"w": "Mais", "t": 35.83}, {"w": "s'il", "t": 36.124}, {"w": "est", "t": 36.359}, {"w": "trop", "t": 36.594}, {"w": "faible,", "t": 36.888}, {"w": "fatigué,", "t": 37.3}, {"w": "ou", "t": 37.77}, {"w": "mal", "t": 37.946}, {"w": "coordonné", "t": 38.181}, {"w": "face", "t": 38.769}, {"w": "à", "t": 39.063}, {"w": "une", "t": 39.181}, {"w": "sangle", "t": 39.416}, {"w": "abdominale", "t": 39.827}, {"w": "trop", "t": 40.474}, {"w": "puissante…", "t": 40.768}, {"w": "il", "t": 41.801}, {"w": "n'absorbe", "t": 41.965}, {"w": "plus", "t": 42.457}, {"w": "l'onde", "t": 42.731}, {"w": "de", "t": 43.059}, {"w": "choc.", "t": 43.223}]}], "fuite": [{"start": 44.02, "dur": 5.6, "words": [{"w": "La", "t": 44.02}, {"w": "pression", "t": 44.175}, {"w": "repousse", "t": 44.64}, {"w": "alors", "t": 45.105}, {"w": "l'urètre", "t": 45.415}, {"w": "vers", "t": 45.828}, {"w": "le", "t": 46.086}, {"w": "bas.", "t": 46.241}, {"w": "L'étanchéité", "t": 46.776}, {"w": "n'est", "t": 47.425}, {"w": "plus", "t": 47.695}, {"w": "assurée:", "t": 47.966}, {"w": "c'est", "t": 48.721}, {"w": "la", "t": 48.98}, {"w": "fuite.", "t": 49.136}]}, {"start": 49.97, "dur": 4.56, "words": [{"w": "Plus", "t": 49.97}, {"w": "rarement,", "t": 50.253}, {"w": "lors", "t": 50.868}, {"w": "d'efforts", "t": 51.156}, {"w": "extrêmes,", "t": 51.674}, {"w": "ce", "t": 52.192}, {"w": "peuvent", "t": 52.364}, {"w": "être", "t": 52.825}, {"w": "des", "t": 53.113}, {"w": "gaz", "t": 53.343}, {"w": "ou", "t": 53.573}, {"w": "des", "t": 53.746}, {"w": "selles.", "t": 53.976}]}], "sports": [{"start": 55.63, "dur": 1.84, "words": [{"w": "Et", "t": 55.63}, {"w": "tous", "t": 55.772}, {"w": "les", "t": 56.009}, {"w": "sports", "t": 56.199}, {"w": "ne", "t": 56.531}, {"w": "se", "t": 56.674}, {"w": "valent", "t": 56.816}, {"w": "pas.", "t": 57.148}]}, {"start": 57.82, "dur": 10.32, "words": [{"w": "Risque", "t": 57.82}, {"w": "élevé:", "t": 58.308}, {"w": "trampoline,", "t": 59.0}, {"w": "course", "t": 60.889}, {"w": "à", "t": 61.25}, {"w": "pied,", "t": 61.353}, {"w": "CrossFit,", "t": 61.779}, {"w": "corde", "t": 62.729}, {"w": "à", "t": 63.062}, {"w": "sauter,", "t": 63.173}, {"w": "gymnastique,", "t": 63.685}, {"w": "basket.", "t": 64.692}, {"w": "Des", "t": 65.219}, {"w": "sauts", "t": 65.52}, {"w": "répétés,", "t": 65.972}, {"w": "des", "t": 66.721}, {"w": "à-coups,", "t": 66.859}, {"w": "une", "t": 67.1}, {"w": "forte", "t": 67.238}, {"w": "hyperpression.", "t": 67.445}]}, {"start": 68.49, "dur": 7.04, "words": [{"w": "Risque", "t": 68.49}, {"w": "intermédiaire:", "t": 68.9}, {"w": "roller,", "t": 70.027}, {"w": "vélo,", "t": 70.639}, {"w": "randonnée.", "t": 71.076}, {"w": "Une", "t": 72.378}, {"w": "pression", "t": 72.596}, {"w": "modérée", "t": 73.084}, {"w": "ou", "t": 73.518}, {"w": "continue,", "t": 73.681}, {"w": "sans", "t": 74.169}, {"w": "rebonds", "t": 74.441}, {"w": "violents.", "t": 74.875}]}, {"start": 75.88, "dur": 6.8, "words": [{"w": "Risque", "t": 75.88}, {"w": "faible:", "t": 76.33}, {"w": "natation,", "t": 77.113}, {"w": "Pilates,", "t": 78.096}, {"w": "marche", "t": 78.786}, {"w": "douce.", "t": 79.198}, {"w": "Peu", "t": 79.98}, {"w": "ou", "t": 80.25}, {"w": "pas", "t": 80.452}, {"w": "d'impact,", "t": 80.722}, {"w": "et", "t": 81.438}, {"w": "un", "t": 81.604}, {"w": "corps", "t": 81.77}, {"w": "soutenu.", "t": 82.102}]}], "retenir": [{"start": 83.68, "dur": 7.28, "words": [{"w": "À", "t": 83.68}, {"w": "retenir:", "t": 83.829}, {"w": "la", "t": 84.836}, {"w": "fuite", "t": 85.006}, {"w": "d'effort,", "t": 85.347}, {"w": "c'est", "t": 85.801}, {"w": "un", "t": 86.085}, {"w": "déséquilibre", "t": 86.256}, {"w": "entre", "t": 86.994}, {"w": "la", "t": 87.335}, {"w": "pression", "t": 87.505}, {"w": "qui", "t": 88.016}, {"w": "pousse…", "t": 88.244}, {"w": "et", "t": 88.993}, {"w": "le", "t": 89.145}, {"w": "plancher", "t": 89.296}, {"w": "pelvien", "t": 89.751}, {"w": "qui", "t": 90.156}, {"w": "retient.", "t": 90.358}]}], "cta": [{"start": 91.66, "dur": 2.64, "words": [{"w": "Enregistrez", "t": 91.66}, {"w": "cette", "t": 92.233}, {"w": "vidéo", "t": 92.52}, {"w": "pour", "t": 92.806}, {"w": "vos", "t": 93.045}, {"w": "prochaines", "t": 93.236}, {"w": "séances.", "t": 93.762}]}]};
+/* /@hl:cues */
+    </script>
+    <script>
+      document.fonts.ready.then(() => {
+        const tl = gsap.timeline({ paused: true });
+        const H = HL;
+        H.use(tl);
+        const { cue, start, end } = H;
+        const $ = (s) => document.querySelector(s);
+
+        /* ---------- the cutaway's geometry, driven by one state object ---------- */
+        const spine = $("#cn-spine");
+        for (let i = 0; i < 8; i++) spine.insertAdjacentHTML("beforeend", `<rect x="132" y="${262 + i * 50}" width="52" height="38" rx="10" />`);
+        const G = { C: 780, gap: 4, drop: 0 };
+        const qy = (C, x) => { const t = (x - 170) / 460; return (1 - t) ** 2 * 660 + 2 * (1 - t) * t * C + t ** 2 * 660; };
+        function geo() {
+          const C = G.C, fmid = 330 + 0.5 * C, bcy = fmid - 100, uEnd = fmid + 46 + Math.max(0, C - 780) * 0.24;
+          $("#cn-region").setAttribute("d", `M170 250 Q400 110 630 250 C705 370 705 560 630 660 Q400 ${C} 170 660 Z`);
+          $("#cn-floor").setAttribute("d", `M170 660 Q400 ${C} 630 660`);
+          $("#cn-blad").setAttribute("cy", bcy);
+          $("#cn-ureth").setAttribute("d", `M420 ${bcy + 60} L420 ${uEnd}`);
+          const g = G.gap;
+          $("#cn-sph").setAttribute("d", `M${400 - g} ${fmid + 8} L${420 - g} ${fmid + 8} M${420 + g} ${fmid + 8} L${440 + g} ${fmid + 8}`);
+          [[260, "a"], [580, "b"]].forEach(([x, k]) => {
+            const yb = qy(C, x), y1 = yb - 120;
+            $(`#up-${k}`).setAttribute("d", `M${x} ${yb - 12} L${x} ${y1}`);
+            $(`#up-${k}h`).setAttribute("d", `M${x - 20} ${y1 + 22} L${x} ${y1 - 4} L${x + 20} ${y1 + 22}`);
+          });
+          const dy = uEnd + 30 + G.drop * 90;
+          $("#cn-drop").setAttribute("d", `M420 ${dy} C400 ${dy + 30} 398 ${dy + 52} 420 ${dy + 58} C442 ${dy + 52} 440 ${dy + 30} 420 ${dy} Z`);
+          $("#lb-ves").setAttribute("x", 420); $("#lb-ves").setAttribute("y", bcy + 15);
+          $("#lb-ure").setAttribute("x", 470); $("#lb-ure").setAttribute("y", uEnd + 44);
+          $("#lb-sph").setAttribute("x", 330); $("#lb-sph").setAttribute("y", fmid + 70);
+          $("#lb-floor").setAttribute("y", fmid + 112);
+        }
+        geo();
+        const morphG = (vars, t, d, ease = "hl.cam", from) =>
+          tl.fromTo(G, { ...from }, { ...vars, duration: d, ease, onUpdate: geo, immediateRender: false }, t);
+
+        /* ---------- the pressure line: floor curve → flat → risk traces ---------- */
+        const N = 48, X0 = 130, X1 = 950;
+        const toScreen = (x, y) => [40 + (x + 210) * (1000 / 1290), 700 + (y - 40) * (729 / 940)];
+        const floorPts = (C) => Array.from({ length: N }, (_, i) => { const t = i / (N - 1); const x = 170 + 460 * t; return toScreen(x, qy(C, x)); });
+        const flatPts = (y) => Array.from({ length: N }, (_, i) => [X0 + (X1 - X0) * i / (N - 1), y]);
+        const zigPts = (y, a) => Array.from({ length: N }, (_, i) => { const ph = (i % 8) / 8; const tri = ph < 0.5 ? ph * 2 : 2 - ph * 2; return [X0 + (X1 - X0) * i / (N - 1), y + a - tri * 2 * a]; });
+        const toD = (P) => P.map((p, i) => `${i ? "L" : "M"}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(" ");
+        const lerpP = (A, B, k) => A.map((p, i) => [p[0] + (B[i][0] - p[0]) * k, p[1] + (B[i][1] - p[1]) * k]);
+        const M = { a: 0, b: 0 };
+        const P0 = floorPts(880), P1 = flatPts(824), P2 = zigPts(824, 52);
+        const drawHigh = () => $("#tr-high").setAttribute("d", toD(M.b > 0 ? lerpP(P1, P2, M.b) : lerpP(P0, P1, M.a)));
+        drawHigh();
+        const wave = (y, amp, per) => toD(Array.from({ length: 64 }, (_, i) => { const x = X0 + (X1 - X0) * i / 63; return [x, y + amp * Math.sin((x - X0) / per * Math.PI * 2)]; }));
+        $("#tr-mid").setAttribute("d", wave(1020, 30, 160));
+        const LW = { amp: 0 };
+        const drawLow = () => $("#tr-low").setAttribute("d", wave(1192, LW.amp, 230));
+        drawLow();
+
+        /* ---------- initial states ---------- */
+        gsap.set("#take", { clipPath: "circle(0px at 540px 1192px)" });
+        gsap.set("#art", { clipPath: "circle(0px at 540px 1040px)" });
+        gsap.set(["#ring", "#runner", "#pose-land", "#impact", "#hk-drop", "#cn-waves", "#cn-dn", "#cn-up", "#cn-drop", "#lb-pia", "#lb-parts", "#lb-org", "#cap", "#tr-mid", "#tr-low", "#bal-dn", "#bal-up", "#bal-line"], { autoAlpha: 0 });
+        gsap.set("#tr-high", { autoAlpha: 0 });
+        H.grain("#grain", HL_TOTAL);
+
+        // title slot: previous block leaves, next one rises — one helper for the whole film
+        let cur = null;
+        const title = (id, t) => {
+          if (cur) {
+            const p = cur;
+            if ($(`#${p} .kk`)) H.sink(`#${p} .kk .ml > span`, t - 0.35);
+            H.linesOut(`#${p} .tt`, t - 0.35);
+          }
+          if ($(`#${id} .kk`)) H.rise(`#${id} .kk .ml > span`, t);
+          H.lines(`#${id} .tt`, t + 0.08);
+          cur = id;
+        };
+
+        /* =================== HOOK =================== */
+        const hk = start("hook");
+        H.rise("#hk-stack .ml:nth-child(1) > span", cue("hook", 0, "gainage") - 0.05);
+        H.rise("#hk-stack .ml:nth-child(2) > span", cue("hook", 0, "tous") + 0.05);
+        H.rise("#hk-stack .ml:nth-child(3) > span", cue("hook", 0, "abdos"));
+        const tP0 = cue("hook", 0, "pourtant") - 0.25;
+        H.sink("#hk-stack .ml > span", tP0 - 0.2, { stagger: 0.05, d: 0.4 });
+        const tP = tP0 + 0.35;
+        title("t-fuit", tP);
+        // the jump: rises in the air pose, lands on "fuit"
+        const tF = cue("hook", 0, "fuit");
+        tl.set("#runner", { autoAlpha: 1 }, tP);
+        tl.fromTo("#runner", { y: 120 }, { y: -110, duration: tF - tP - 0.28, ease: "power2.out" }, tP);
+        tl.to("#runner", { y: 0, duration: 0.28, ease: "power2.in" }, tF - 0.28);
+        tl.set("#pose-air", { autoAlpha: 0 }, tF);
+        tl.set("#pose-land", { autoAlpha: 1 }, tF);
+        tl.fromTo("#runner", { scaleY: 0.94 }, { scaleY: 1, duration: 0.35, ease: "hl.out", immediateRender: false }, tF);
+        tl.fromTo("#impact", { autoAlpha: 0, scale: 0.6, transformOrigin: "50% 100%" }, { autoAlpha: 1, scale: 1, duration: 0.4, ease: "hl.out" }, tF);
+        tl.to("#impact", { autoAlpha: 0, duration: 0.4, ease: "hl.in" }, tF + 0.7);
+        tl.set("#hk-drop", { autoAlpha: 1 }, tF + 0.15);
+        tl.fromTo("#hk-drop", { y: 0 }, { y: 100, duration: 0.7, ease: "power2.in", immediateRender: false }, tF + 0.15);
+        tl.to("#hk-drop", { autoAlpha: 0, duration: 0.2 }, tF + 0.75);
+        H.mark("#t-fuit .hl", tF);
+        // "Pourquoi ?" — the camera dives into the belly, an iris opens on the cutaway
+        const tW = cue("hook", 0, "pourquoi") - 0.2;
+        title("t-why", tW + 0.15);
+        tl.to("#runner", { scale: 4.2, y: -40, duration: 1.3, ease: "hl.cam" }, tW);
+        tl.to("#runner", { opacity: 0, duration: 0.7, ease: "hl.in" }, tW + 0.35);
+        tl.to("#art", { clipPath: "circle(320px at 540px 1040px)", duration: 1.2, ease: "hl.cam" }, tW + 0.15);
+        tl.set("#ring", { autoAlpha: 1 }, tW + 0.15);
+        tl.fromTo("#ring", { scale: 0 }, { scale: 1, duration: 1.2, ease: "hl.cam" }, tW + 0.15);
+        H.mark("#t-why .hl", cue("hook", 0, "pression"));
+
+        /* =================== CAISSON =================== */
+        const c0 = start("caisson");
+        tl.to("#art", { clipPath: "circle(1400px at 540px 1040px)", duration: 1.3, ease: "hl.cam" }, c0 - 0.6);
+        tl.to("#ring", { scale: 3.5, autoAlpha: 0, duration: 1.1, ease: "hl.cam" }, c0 - 0.6);
+        tl.set("#runner", { autoAlpha: 0 }, c0 - 0.4);
+        title("t-caisson", c0 + 0.1);
+        // the four walls name themselves
+        tl.set("#lb-parts", { autoAlpha: 1 }, c0);
+        [["dia", "diaphragme", "#cn-dia"], ["abdo", "abdominaux", "#cn-abdo"], ["spine", "rachis", "#cn-spine"], ["floor", "plancher", "#cn-floor"]].forEach(([k, w, sel]) => {
+          const t = cue("caisson", 0, w);
+          H.enter(`#lb-${k}`, t, { y: 14 });
+          // the wall lights up in violet while its name lands, then settles back
+          const tgt = k === "spine" ? "#cn-spine" : sel;
+          const base = k === "floor" ? "#7a29ff" : k === "spine" ? "#d1d5db" : "#0a0a0f";
+          tl.to(tgt, { stroke: "#7a29ff", duration: 0.25, ease: "hl.out" }, t - 0.05);
+          if (k !== "floor") tl.to(tgt, { stroke: base, duration: 0.6, ease: "hl.mark" }, t + 0.7);
+        });
+        // jumps, strides, loads: the box fills in bursts
+        const c1 = start("caisson", 1);
+        title("t-pia", c1);
+        H.fade("#lb-parts", c1 - 0.2, 0);
+        tl.set("#cn-dn", { autoAlpha: 1 }, c1);
+        tl.set("#lb-pia", { autoAlpha: 1 }, c1);
+        tl.fromTo("#lb-pia", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "hl.out", immediateRender: false }, c1 + 0.1);
+        ["saut", "foulée", "charge"].forEach((w, i) => {
+          const t = cue("caisson", 1, w);
+          const p = 0.12 + i * 0.09;
+          tl.to("#cn-region", { attr: { "fill-opacity": p + 0.08 }, duration: 0.18, ease: "power2.out" }, t);
+          tl.to("#cn-region", { attr: { "fill-opacity": p }, duration: 0.45, ease: "hl.mark" }, t + 0.18);
+          tl.fromTo("#cn-dn", { scaleY: 0.5 + i * 0.12, transformOrigin: "50% 0%" }, { scaleY: 0.8 + i * 0.12, duration: 0.35, ease: "hl.out", immediateRender: i === 0 }, t);
+        });
+        const tB = cue("caisson", 1, "brutalement");
+        tl.to("#cn-region", { attr: { fill: "#d97706", "fill-opacity": 0.42 }, duration: 0.3, ease: "power2.out" }, tB);
+        tl.to("#cn-dn", { scaleY: 1.3, duration: 0.3, ease: "power2.out" }, tB);
+        tl.to(["#cn-dn", "#lb-pia"], { stroke: "#d97706", fill: "#d97706", duration: 0.3 }, tB);
+        tl.fromTo("#cam", { x: 0 }, { x: 8, duration: 0.05, ease: "none", repeat: 5, yoyo: true, immediateRender: false }, tB);
+
+        /* =================== PLANCHER PELVIEN =================== */
+        const p0 = start("perinee");
+        title("t-hamac", p0 - 0.2);
+        tl.to("#cn-region", { attr: { fill: "#7a29ff", "fill-opacity": 0.14 }, duration: 0.8, ease: "hl.mark" }, p0 - 0.6);
+        tl.to("#cn-dn", { scaleY: 0.75, stroke: "#9147ff", duration: 0.8, ease: "hl.mark" }, p0 - 0.6);
+        H.fade("#lb-pia", p0 - 0.6, 0);
+        tl.to("#cn-top", { opacity: 0.32, duration: 0.8, ease: "hl.mark" }, p0 - 0.4);
+        // dolly: the camera slides down onto the floor
+        tl.to("#cam", { scale: 1.32, y: -150, duration: 1.4, ease: "hl.cam" }, p0 - 0.4);
+        tl.to("#cn-floor", { attr: { "stroke-width": 18 }, duration: 0.6, ease: "hl.mark" }, cue("perinee", 0, "hamac"));
+        const tC = cue("perinee", 0, "contracter");
+        title("t-syn", tC - 0.1);
+        morphG({ C: 712 }, tC, 1.1, "hl.cam", { C: 780 });
+        tl.set("#cn-up", { autoAlpha: 1 }, cue("perinee", 0, "contre-appui") - 0.2);
+        H.draw("#cn-up path", cue("perinee", 0, "contre-appui") - 0.2, { d: 0.6, stagger: 0.08 });
+        H.mark("#t-syn .hl", cue("perinee", 0, "contre-appui"));
+        tl.set("#lb-org", { autoAlpha: 1 }, cue("perinee", 0, "vessie") - 0.1);
+        H.enter("#lb-ves", cue("perinee", 0, "vessie"), { y: 12 });
+        H.enter("#lb-ure", cue("perinee", 0, "urètre"), { y: 12 });
+        H.enter("#lb-sph", cue("perinee", 0, "sphincter"), { y: 12 });
+        H.idle("#cn-floor", cue("perinee", 0, "sphincter") + 0.6, end("perinee") + 0.4, { amp: -4, period: 2.4 });
+
+        /* =================== DÉFAUT =================== */
+        const d0 = start("defaut");
+        // rewind: back to the impact, this time with a failing floor
+        tl.to("#cn-up", { autoAlpha: 0, duration: 0.3 }, d0 - 0.5);
+        H.fade("#lb-org", d0 - 0.5, 0);
+        morphG({ C: 780 }, d0 - 0.45, 0.6, "power3.inOut", { C: 712 });
+        tl.to("#cam", { scale: 1.12, y: -70, duration: 0.9, ease: "hl.cam" }, d0 - 0.45);
+        title("t-def", d0);
+        tl.to("#cn-floor", { attr: { "stroke-width": 8 }, duration: 0.5, ease: "hl.mark" }, cue("defaut", 0, "faible"));
+        morphG({ C: 805 }, cue("defaut", 0, "fatigué"), 0.6, "hl.mark", { C: 780 });
+        tl.to("#cn-floor", { stroke: "#b48cff", duration: 0.5, ease: "hl.mark" }, cue("defaut", 0, "coordonné"));
+        const tS = cue("defaut", 0, "sangle");
+        title("t-onde", tS - 0.1);
+        tl.to("#cn-top", { opacity: 1, duration: 0.5, ease: "hl.mark" }, tS);
+        tl.to("#cn-abdo", { attr: { "stroke-width": 28 }, duration: 0.6, ease: "hl.out" }, cue("defaut", 0, "puissante"));
+        const tO = cue("defaut", 0, "l'onde");
+        tl.set("#cn-waves", { autoAlpha: 1 }, tO - 0.1);
+        tl.fromTo("#cn-waves", { y: -120 }, { y: 40, duration: 1.0, ease: "power2.in" }, tO - 0.1);
+        H.draw("#cn-waves path", tO - 0.1, { d: 0.5, stagger: 0.08 });
+        tl.to("#cn-region", { attr: { fill: "#d97706", "fill-opacity": 0.4 }, duration: 0.4, ease: "power2.out" }, tO + 0.3);
+        tl.to("#cn-dn", { scaleY: 1.3, stroke: "#d97706", duration: 0.4, ease: "power2.out" }, tO + 0.3);
+        morphG({ C: 880 }, tO + 0.5, 1.3, "hl.cam", { C: 805 });
+        H.mark("#t-onde .hl", tO);
+
+        /* =================== FUITE =================== */
+        const f0 = start("fuite");
+        tl.to("#cn-waves", { autoAlpha: 0, duration: 0.4 }, f0 - 0.3);
+        tl.to("#cn-region", { attr: { fill: "#7a29ff", "fill-opacity": 0.3 }, duration: 0.6, ease: "hl.mark" }, f0 - 0.3);
+        tl.to("#cn-dn", { scaleY: 0.9, stroke: "#9147ff", duration: 0.6 }, f0 - 0.3);
+        // push-in on the urethra
+        tl.to("#cam", { scale: 1.75, y: -330, duration: 1.4, ease: "hl.cam" }, cue("fuite", 0, "l'urètre") - 0.5);
+        tl.set("#lb-org", { autoAlpha: 1 }, cue("fuite", 0, "l'urètre"));
+        tl.to("#lb-org", { opacity: 1, duration: 0.01 }, cue("fuite", 0, "l'urètre"));
+        tl.to(["#lb-ves", "#lb-ure", "#lb-sph"], { opacity: 1, duration: 0.5, ease: "hl.mark" }, cue("fuite", 0, "l'urètre"));
+        morphG({ gap: 17 }, cue("fuite", 0, "l'étanchéité"), 0.7, "hl.mark", { gap: 4 });
+        const tFu = cue("fuite", 0, "fuite");
+        title("t-fuite", tFu - 0.15);
+        tl.set("#cn-drop", { autoAlpha: 1 }, tFu);
+        morphG({ drop: 1 }, tFu, 0.9, "power2.in", { drop: 0 });
+        // rarer cases: step back, note at the bottom
+        const f1 = start("fuite", 1);
+        tl.to("#cam", { scale: 1, y: -60, duration: 1.1, ease: "hl.cam" }, f1 - 0.4);
+        tl.to("#cn-drop", { autoAlpha: 0, duration: 0.4 }, f1 - 0.2);
+        tl.set("#cap", { autoAlpha: 1 }, f1);
+        H.lines("#cap", f1 + 0.1);
+
+        /* =================== SPORTS =================== */
+        const s0 = start("sports");
+        H.linesOut("#cap", s0 - 1.0);
+        title("t-sports", s0 - 0.2);
+        // morph: the pelvic floor leaves the body and becomes a pressure line
+        tl.to("#cam", { y: 0, duration: 0.01 }, s0 - 0.95);
+        tl.set("#tr-high", { autoAlpha: 1 }, s0 - 0.9);
+        tl.to(["#cn-region", "#cn-top", "#cn-dn", "#cn-blad", "#cn-ureth", "#cn-sph", "#cn-floor", "#lb-org"], { opacity: 0, duration: 0.5, ease: "hl.in" }, s0 - 0.9);
+        tl.fromTo(M, { a: 0 }, { a: 1, duration: 1.4, ease: "hl.cam", onUpdate: drawHigh, immediateRender: false }, s0 - 0.8);
+        tl.set("#art", { autoAlpha: 0 }, s0 + 0.6);
+        // the three risk levels
+        const s1 = start("sports", 1);
+        title("t-high", s1 - 0.1);
+        tl.fromTo(M, { b: 0 }, { b: 1, duration: 0.9, ease: "hl.out", onUpdate: drawHigh, immediateRender: false }, cue("sports", 1, "élevé") - 0.1);
+        tl.to("#tr-high", { stroke: "#d97706", duration: 0.5 }, cue("sports", 1, "élevé"));
+        H.rise("#rl-high .ml > span", cue("sports", 1, "risque"));
+        tl.set(["#tr-mid", "#tr-low"], { autoAlpha: 1 }, s1 + 0.3);
+        tl.fromTo(["#tr-mid", "#tr-low"], { opacity: 0 }, { opacity: 0.2, duration: 0.8, ease: "hl.mark", immediateRender: false }, s1 + 0.3);
+        H.draw(["#tr-mid", "#tr-low"], s1 + 0.3, { d: 1.0, stagger: 0.2 });
+        ["trampoline", "course", "crossfit", "corde", "gymnastique", "basket"].forEach((w, i) =>
+          H.rise(`#det-high .sp .ml:nth-child(${i + 1}) > span`, cue("sports", 1, w)));
+        H.rise("#det-high .mc .ml > span", cue("sports", 1, "sauts"));
+        // intermediate
+        const s2 = start("sports", 2);
+        title("t-mid", s2 - 0.1);
+        H.sink("#det-high .ml > span", s2 - 0.4, { stagger: 0.03 });
+        tl.to(["#tr-high", "#rl-high"], { opacity: 0.2, duration: 0.6, ease: "hl.mark" }, s2 - 0.2);
+        tl.to("#tr-mid", { opacity: 1, duration: 0.6, ease: "hl.mark" }, cue("sports", 2, "intermédiaire"));
+        H.rise("#rl-mid .ml > span", cue("sports", 2, "risque"));
+        ["roller", "vélo", "randonnée"].forEach((w, i) => H.rise(`#det-mid .sp .ml:nth-child(${i + 1}) > span`, cue("sports", 2, w)));
+        H.rise("#det-mid .mc .ml > span", cue("sports", 2, "une"));
+        // low
+        const s3 = start("sports", 3);
+        title("t-low", s3 - 0.1);
+        H.sink("#det-mid .ml > span", s3 - 0.4, { stagger: 0.03 });
+        tl.to(["#tr-mid", "#rl-mid"], { opacity: 0.2, duration: 0.6, ease: "hl.mark" }, s3 - 0.2);
+        tl.to("#tr-low", { opacity: 1, duration: 0.6, ease: "hl.mark" }, cue("sports", 3, "faible"));
+        H.rise("#rl-low .ml > span", cue("sports", 3, "risque"));
+        ["natation", "pilates", "marche"].forEach((w, i) => H.rise(`#det-low .sp .ml:nth-child(${i + 1}) > span`, cue("sports", 3, w)));
+        tl.fromTo(LW, { amp: 0 }, { amp: 9, duration: 1.2, ease: "sine.inOut", onUpdate: drawLow, immediateRender: false }, cue("sports", 3, "natation"));
+        H.rise("#det-low .mc .ml > span", cue("sports", 3, "peu"));
+
+        /* =================== À RETENIR =================== */
+        const r0 = start("retenir");
+        tl.to("#take", { clipPath: "circle(1500px at 540px 1192px)", duration: 1.3, ease: "hl.cam" }, r0 - 1.0);
+        // once the violet covers the frame, everything underneath is switched off
+        tl.set(["#t-low", "#rl-high", "#rl-mid", "#rl-low", "#det-high", "#det-mid", "#det-low", "#morph"], { autoAlpha: 0 }, r0 + 0.35);
+        H.rise("#t-ret .kk .ml > span", r0);
+        H.lines("#t-ret .tt", r0 + 0.1);
+        tl.set(["#bal-line"], { autoAlpha: 1 }, r0 + 0.6);
+        H.draw("#bal-line", r0 + 0.6, { d: 0.8 });
+        const tPo = cue("retenir", 0, "pousse");
+        tl.set("#bal-dn", { autoAlpha: 1 }, cue("retenir", 0, "pression") - 0.1);
+        H.draw("#bal-dn path", cue("retenir", 0, "pression") - 0.1, { d: 0.6, stagger: 0.2 });
+        H.enter(["#bal-dn-t", "#bal-dn-t2"], cue("retenir", 0, "pression"), { y: 14, stagger: 0.25 });
+        tl.set("#bal-up", { autoAlpha: 1 }, cue("retenir", 0, "plancher") - 0.1);
+        H.draw("#bal-up path", cue("retenir", 0, "plancher") - 0.1, { d: 0.6, stagger: 0.2 });
+        H.enter(["#bal-up-t", "#bal-up-t2"], cue("retenir", 0, "plancher"), { y: -14, stagger: 0.25 });
+        H.idle(["#bal-dn", "#bal-up"], tPo + 0.6, end("retenir") + 0.5, { amp: -6, period: 2.6, stagger: 1.3 });
+
+        /* =================== END CARD =================== */
+        const e0 = start("cta");
+        H.sink("#t-ret .kk .ml > span", e0 - 0.6);
+        H.linesOut("#t-ret .tt", e0 - 0.6);
+        H.exit("#bal", e0 - 0.6, { y: -30 });
+        H.rise("#end-mark .ml > span", e0 - 0.1, { stagger: 0.1 });
+        tl.fromTo("#end-mark i", { scale: 0 }, { scale: 1, duration: 0.6, ease: "hl.out" }, e0 + 0.15);
+        H.draw("#bm", cue("cta", 0, "enregistrez"), { d: 0.8 });
+        H.rise("#end-save .ml > span", cue("cta", 0, "enregistrez") + 0.1);
+
+        window.__timelines["main"] = tl;
+      });
+    </script>
+  </body>
+</html>

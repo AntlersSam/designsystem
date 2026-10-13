@@ -1,0 +1,39 @@
+{
+  "title": "{{TITLE}}",
+  "audience": "kinésithérapeutes et professionnels de santé",
+  "question": "La seule question à laquelle le film répond (une phrase).",
+  "sources": [
+    "Référence complète de la source principale (auteurs, revue, année)"
+  ],
+  "voice": {
+    "engine": "placeholder",
+    "provider": "elevenlabs",
+    "model": "eleven_v4",
+    "voice_id": "UaGvaD7NWzU5mJNoUqoY",
+    "name": "Perle"
+  },
+  "scenes": [
+    {
+      "id": "hook",
+      "vo": ["Contracter, serrer, remonter… on le répète à chaque séance. Mais que se passe-t-il vraiment dans le bassin ?"],
+      "breath": 0.8
+    },
+    {
+      "id": "coupe",
+      "vo": ["En coupe, le plancher pelvien est un hamac musculaire, traversé par trois orifices : l'urètre sous la vessie, le vagin, et le rectum."]
+    },
+    {
+      "id": "contraction",
+      "vo": ["Quand il se contracte, tout l'ensemble remonte et avance. Puis il se relâche, et revient à sa position de repos."],
+      "breath": 0.9
+    },
+    {
+      "id": "retenir",
+      "vo": ["À retenir : une phrase, un seul message."]
+    },
+    {
+      "id": "cta",
+      "vo": ["Enregistrez cette vidéo pour vos prochaines séances."]
+    }
+  ]
+}
