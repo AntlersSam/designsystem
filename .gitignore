@@ -8,3 +8,4 @@ videos/*/out/
 # licensed brand fonts (Neue Haas Grotesk) — never commit
 *.otf
 **/assets/fonts/nhg-*
+videos/*/.hyperframes/
