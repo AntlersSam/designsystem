@@ -1,23 +1,17 @@
 # Fonts
 
-Hey Lilie's brand faces are **Neue Haas Grotesk Display** (titles) and
-**Neue Haas Grotesk Text** (body), licensed from Monotype. They are not stored
-in this repository.
+Hey Lilie's official face is **Neue Haas Grotesk Display**, in two cuts:
+**55 Roman** and **65 Medium** (Monotype, licensed). The files are **not
+committed** (licence); keep them with the brand assets and copy them into each
+video project before building:
 
-To use them in a video, put the licensed woff2 files in the project's
-`assets/fonts/` with these names, then re-run `tools/build.py`:
-
-| file | weight | used for |
+| file in `<project>/assets/fonts/` | cut | CSS weight |
 |---|---|---|
-| `nhg-display-500.woff2` | Medium | — |
-| `nhg-display-600.woff2` | Semibold | — |
-| `nhg-display-700.woff2` | Bold | titles, numbers |
-| `nhg-text-400.woff2` | Regular | — |
-| `nhg-text-500.woff2` | Medium | body, notes |
-| `nhg-text-600.woff2` | Semibold | labels, chapter |
+| `nhg-display-55.otf` | 55 Roman | 400 (body, captions) |
+| `nhg-display-65.otf` | 65 Medium | 500–800 (titles, labels, numbers) |
 
-`build.py` detects them and rewrites the `@font-face` block (it prints
-`fonts: Neue Haas`). Make sure the licence covers use in video / motion.
+`tools/build.py` detects them and rewrites the `@font-face` block (it prints
+`fonts: Neue Haas`). Titles are set in Medium — there is no Bold in the brand
+set, so never fake one with `font-weight: 700` synthesis.
 
-Until then the kit ships **Inter Tight** (SIL OFL) as the stand-in — the
-closest free match in proportions and tight display spacing.
+Without the files the kit falls back to **Inter Tight** (SIL OFL), shipped here.

@@ -65,6 +65,21 @@ chrome, grain), write `script.json`, then steps 3–6.
 
 ## The house grammar (non-negotiable)
 
+**Layout (feedback 13/10: "plutôt centré")**
+- Every frame is **centered**: kicker, title and diagram on the vertical axis
+  (x = 540), text-align center, diagram in the middle band (y ≈ 600–1340),
+  caption/limit under it (≤ y 1450). The brand mark sits centered at y ≈ 300.
+- One block of text at the top, one drawing in the middle, at most one line
+  underneath. Asymmetry only inside a drawing, never in the page grid.
+
+**Transitions are movements, never cuts**
+- Each scene change is a named move: *match cut* (an object becomes the next
+  scene — the runner's belly becomes the abdominal cutaway), *push-in / zoom*
+  (iris opening on the next level of detail), *dolly* (the camera slides to
+  another part of the same drawing), *morph* (a line becomes a chart),
+  *rewind* (the same shot replayed with one variable changed), *takeover*
+  (a colour floods from an object). Write the move in the storyboard.
+
 **World & camera**
 - One tall `#world` of stacked 1080×1920 `.frame`s. Change scene by moving the
   camera (`HL.frames(...).go(i, t)`, 1.4 s `hl.cam`), starting ~0.85 s before

@@ -119,17 +119,21 @@ def main(proj):
         shutil.copy(f, proj / "assets/fonts" / f.name)
 
     css = (KIT / "hl-motion.css").read_text()
-    nhg = sorted((proj / "assets/fonts").glob("nhg-*.woff2"))
-    if nhg:  # licensed Neue Haas files present → use them
+    # Official Neue Haas Grotesk Display files (licensed, never committed):
+    #   assets/fonts/nhg-display-55.otf  (55 Roman)  -> weight 400
+    #   assets/fonts/nhg-display-65.otf  (65 Medium) -> weights 500-800
+    # Both families (HL Display / HL Text) map onto them, so every weight used
+    # in the CSS resolves to Roman or Medium.
+    fonts = proj / "assets/fonts"
+    roman, medium = fonts / "nhg-display-55.otf", fonts / "nhg-display-65.otf"
+    nhg = roman.exists() and medium.exists()
+    if nhg:
         faces = []
-        for f in nhg:
-            m = re.match(r"nhg-(display|text)-(\d00)\.woff2", f.name)
-            if m:
-                fam = "HL Display" if m.group(1) == "display" else "HL Text"
-                faces.append(f'@font-face {{ font-family: "{fam}"; font-weight: {m.group(2)}; '
-                             f'src: url("assets/fonts/{f.name}") format("woff2"); }}')
+        for fam in ("HL Display", "HL Text"):
+            faces.append(f'@font-face {{ font-family: "{fam}"; font-weight: 400; src: url("assets/fonts/{roman.name}") format("opentype"); }}')
+            faces.append(f'@font-face {{ font-family: "{fam}"; font-weight: 500 800; src: url("assets/fonts/{medium.name}") format("opentype"); }}')
         css = re.sub(r"/\* @hl-fonts:start \*/.*?/\* @hl-fonts:end \*/",
-                     "/* @hl-fonts:start */\n" + "\n".join(faces) + "\n/* @hl-fonts:end */", css, flags=re.S)
+                     lambda m: "/* @hl-fonts:start */\n" + "\n".join(faces) + "\n/* @hl-fonts:end */", css, flags=re.S)
 
     # narration timeline
     cues, audio, t = {}, [], LEAD_IN

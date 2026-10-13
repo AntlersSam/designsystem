@@ -4,3 +4,7 @@ videos/*/renders/
 videos/*/out/
 *.mp4
 .DS_Store
+
+# licensed brand fonts (Neue Haas Grotesk) — never commit
+*.otf
+**/assets/fonts/nhg-*
