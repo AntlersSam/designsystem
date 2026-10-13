@@ -9,3 +9,4 @@ videos/*/out/
 *.otf
 **/assets/fonts/nhg-*
 videos/*/.hyperframes/
+videos/*/.qa/

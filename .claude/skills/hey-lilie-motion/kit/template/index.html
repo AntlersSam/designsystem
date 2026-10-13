@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <title>{{TITLE}} — Hey Lilie</title>
+    <script src="assets/vendor/gsap.min.js"></script>
+    <script src="assets/vendor/CustomEase.min.js"></script>
+    <script src="assets/vendor/SplitText.min.js"></script>
+    <script src="assets/vendor/DrawSVGPlugin.min.js"></script>
+    <script src="assets/vendor/hl-motion.js"></script>
+    <script src="assets/vendor/hl-anatomy.js"></script>
+    <style>
+/* @hl:css */
+/* /@hl:css */
+
+      /* ================================================================
+       * House layout (video 2 "Fuites à l'effort" = reference).
+       * Everything sits on the vertical axis x = 540:
+       *   title slot  y 330 → ~650   (kicker 36 px + title 112 px)
+       *   schema      y 690 → 1470   (#view: one window, the camera moves inside)
+       *   caption     y 1330         (one line, only when the schema is small)
+       * ================================================================ */
+      .layer { position: absolute; inset: 0; }
+      .ttl { position: absolute; left: 90px; right: 90px; top: 330px; display: flex; flex-direction: column; align-items: center; gap: 34px; text-align: center; z-index: 10; }
+      .kk { font-family: "HL Text"; font-weight: 500; font-size: 36px; letter-spacing: 0.1em; line-height: 1.3; text-transform: uppercase; color: var(--violet); }
+      .tt { font-family: "HL Display"; font-weight: 500; font-size: 112px; line-height: 1.1; letter-spacing: -0.018em; word-spacing: 0.06em; color: var(--ink); }
+      .nb { white-space: nowrap; }
+
+      /* hook: full-bleed stack, no logo */
+      #hk-stack { position: absolute; left: 0; right: 0; top: 640px; display: flex; flex-direction: column; align-items: center; gap: 22px; }
+      #hk-stack .ml > span { font-family: "HL Display"; font-weight: 500; font-size: 132px; line-height: 1.12; letter-spacing: -0.025em; word-spacing: 0.06em; }
+
+      /* the schema: one window, one camera, one drawing with many states */
+      #art { position: absolute; inset: 0; z-index: 5; }
+      #view { position: absolute; left: 0; right: 0; top: 690px; height: 780px; overflow: hidden; }
+      #cam { position: absolute; left: 40px; top: 10px; width: 1000px; height: 724px; transform-origin: 50% 50%; }
+      #ring { position: absolute; left: 220px; top: 720px; width: 640px; height: 640px; border-radius: 50%; border: 6px solid var(--violet); z-index: 6; }
+      #schema text { font-family: "HL Display"; font-weight: 500; }
+
+      /* one caption line under the schema */
+      #cap { position: absolute; left: 110px; right: 110px; top: 1330px; text-align: center; font-family: "HL Text"; font-weight: 500; font-size: 52px; line-height: 1.3; word-spacing: 0.04em; color: var(--ink-2); z-index: 10; }
+
+      /* takeover: "À retenir" on violet, then the end card */
+      #take { position: absolute; inset: 0; z-index: 30; background: var(--violet); }
+      #take .ttl .kk { color: rgba(255, 255, 255, 0.85); }
+      #take .tt { color: #fff; font-size: 100px; }
+      #ret-art { position: absolute; left: 0; top: 760px; width: 1080px; height: 640px; }
+      #ret-art text { font-family: "HL Display"; font-weight: 500; font-size: 46px; fill: #fff; }
+      #end { position: absolute; left: 0; right: 0; top: 700px; display: flex; flex-direction: column; align-items: center; gap: 70px; text-align: center; }
+      #end-mark { font-family: "HL Display"; font-weight: 500; font-size: 170px; letter-spacing: -0.04em; color: #fff; display: flex; align-items: center; }
+      #end-mark i { display: inline-block; width: 40px; height: 40px; border-radius: 50%; background: #fff; margin: 0 18px; }
+      #end-save { display: flex; flex-direction: column; align-items: center; gap: 30px; }
+      #end-save svg { width: 80px; height: 80px; }
+      #end-save .ml > span { font-family: "HL Display"; font-weight: 500; font-size: 60px; line-height: 1.2; color: #fff; max-width: 860px; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-hl-root data-composition-id="main" data-start="0" data-duration="60" data-width="1080" data-height="1920">
+
+      <!-- ===== hook: a paradox the viewer recognises, full-bleed type ===== -->
+      <div id="hook" class="layer">
+        <div id="hk-stack">
+          <span class="ml"><span>Contracter.</span></span>
+          <span class="ml"><span>Serrer.</span></span>
+          <span class="ml"><span class="v">Remonter.</span></span>
+        </div>
+      </div>
+
+      <!-- ===== titles: one slot, swapped on the voice (HL.titles) ===== -->
+      <div class="ttl" id="t-q"><div class="kk"><span class="ml"><span>Et pourtant</span></span></div><h2 class="tt">Que se passe-t-il <span class="hl">vraiment</span>&nbsp;?</h2></div>
+      <div class="ttl" id="t-cut"><div class="kk"><span class="ml"><span>Coupe sagittale</span></span></div><h2 class="tt">Trois orifices, un hamac</h2></div>
+      <div class="ttl" id="t-lift"><div class="kk"><span class="ml"><span>Contraction</span></span></div><h2 class="tt">Le plancher <span class="hl">remonte</span></h2></div>
+
+      <!-- ===== the schema (one drawing, many states) ===== -->
+      <div id="art">
+        <div id="view"><div id="cam">
+          <svg id="schema" viewBox="-60 150 1160 840" width="1000" height="724"></svg>
+        </div></div>
+        <div id="ring"></div>
+      </div>
+      <p id="cap">Schéma simplifié, coupe sagittale.</p>
+
+      <!-- ===== takeover: à retenir + end card ===== -->
+      <section id="take">
+        <div class="ttl" id="t-ret"><div class="kk"><span class="ml"><span>À retenir</span></span></div><h2 class="tt">Une phrase, un message</h2></div>
+        <svg id="ret-art" viewBox="0 0 1080 640"></svg>
+        <div id="end">
+          <div id="end-mark"><span class="ml"><span>hey</span></span><i></i><span class="ml"><span>lilie</span></span></div>
+          <div id="end-save">
+            <svg viewBox="0 0 80 80"><path id="bm" d="M22 10 H58 V70 L40 55 L22 70 Z" fill="none" stroke="#fff" stroke-width="6" stroke-linejoin="round" /></svg>
+            <span class="ml"><span>Enregistrez cette vidéo pour vos prochaines séances</span></span>
+          </div>
+        </div>
+      </section>
+
+      <div class="vignette"></div>
+      <div class="grain" id="grain" data-layout-allow-overflow></div>
+
+      <!-- @hl:audio -->
+      <!-- /@hl:audio -->
+    </div>
+
+    <script>
+/* @hl:cues */
+/* /@hl:cues */
+    </script>
+    <script>
+      document.fonts.ready.then(() => {
+        const tl = gsap.timeline({ paused: true });
+        const H = HL;
+        H.use(tl);
+        const { cue, start, end } = H;
+        const $ = (s) => document.querySelector(s);
+        const title = H.titles();
+
+        /* ---------- the schema: build once, drive by state ---------- */
+        const P = HLA.pelvis($("#schema"));
+        const S = H.state(P.s, P.draw);           // S.to({ lift: 1 }, t, d, ease)
+        const lb = { floor: P.label("floor"), bladder: P.label("bladder"), rectum: P.label("rectum"), vagina: P.label("vagina") };
+
+        /* ---------- initial states ---------- */
+        gsap.set("#art", { clipPath: "circle(0px at 540px 1040px)" });
+        gsap.set(["#ring", "#cap", P.part("knot")], { autoAlpha: 0 });
+        H.grain("#grain", HL_TOTAL);
+
+        /* =================== HOOK =================== */
+        // frame 0 is the thumbnail: the first line is already there, the rest lands on the voice
+        gsap.set("#hk-stack .ml:nth-child(1) > span", { autoAlpha: 1, yPercent: 0 });
+        H.rise("#hk-stack .ml:nth-child(2) > span", cue("hook", 0, "serrer"));
+        H.rise("#hk-stack .ml:nth-child(3) > span", cue("hook", 0, "remonter"));
+        const tQ = cue("hook", 0, "que") - 0.2;
+        H.sink("#hk-stack .ml > span", tQ - 0.45, { stagger: 0.05, d: 0.4 });
+        title("t-q", tQ);
+        H.mark("#t-q .hl", cue("hook", 0, "vraiment"));
+        // dive: an iris opens on the schema
+        tl.set("#ring", { autoAlpha: 1 }, end("hook") - 0.6);
+        tl.fromTo("#ring", { scale: 0 }, { scale: 1, duration: 1.2, ease: "hl.cam" }, end("hook") - 0.6);
+        H.iris("#art", end("hook") - 0.6, { to: 320 });
+
+        /* =================== COUPE =================== */
+        const c0 = start("coupe");
+        H.iris("#art", c0 - 0.5, { from: 320, to: 1400, d: 1.3 });
+        tl.to("#ring", { scale: 3.5, autoAlpha: 0, duration: 1.1, ease: "hl.cam" }, c0 - 0.5);
+        title("t-cut", c0);
+        H.draw(P.part("floor"), cue("coupe", 0, "hamac"), { d: 1.0 });
+        H.enter(P.part("knot"), cue("coupe", 0, "hamac") + 0.8, { y: 0, scale: 0.4 });
+        H.enter(lb.floor, cue("coupe", 0, "hamac") + 0.2, { y: 12 });
+        H.enter(lb.bladder, cue("coupe", 0, "vessie"), { y: 12 });
+        H.enter(lb.vagina, cue("coupe", 0, "vagin"), { y: 12 });
+        H.enter(lb.rectum, cue("coupe", 0, "rectum"), { y: 12 });
+
+        /* =================== CONTRACTION =================== */
+        const k0 = start("contraction");
+        title("t-lift", k0 - 0.1);
+        // labels in the side columns would leave the safe zone during the dolly: swap for one under the floor
+        H.exit([lb.bladder, lb.vagina, lb.rectum, lb.floor], k0 - 0.3, { y: -10 });
+        const lbF = P.label("floor", "Plancher pelvien", { at: [480, 950], anchor: "middle", to: "floor" });
+        P.focus(tl, ["floor", "knot", "body"], k0);
+        tl.to("#cam", { scale: 1.25, y: -120, duration: 1.4, ease: "hl.cam" }, k0 - 0.2);   // dolly onto the floor
+        H.enter(lbF, k0 + 1.0, { y: 12 });
+        S.to({ lift: 1 }, cue("contraction", 0, "remonte"), 1.0, "hl.cam");
+        H.mark("#t-lift .hl", cue("contraction", 0, "remonte"));
+        S.to({ lift: 0 }, cue("contraction", 0, "relâche"), 1.2, "hl.mark");
+        // pull back before the caption comes in: a caption only sits under a small schema
+        const tR = cue("contraction", 0, "relâche");
+        H.exit(lbF, tR - 0.3, { y: 10 });
+        tl.to("#cam", { scale: 1, y: -60, duration: 1.2, ease: "hl.cam" }, tR - 0.2);
+        tl.set("#cap", { autoAlpha: 1 }, tR + 0.6);
+        H.lines("#cap", tR + 0.6);
+
+        /* =================== À RETENIR =================== */
+        const r0 = start("retenir");
+        H.linesOut("#cap", r0 - 1.0);
+        H.takeover("#take", r0 - 1.0);
+        // once the violet covers the frame, everything underneath is switched off
+        tl.set(["#t-lift", "#art", "#cap", lbF], { autoAlpha: 0 }, r0 + 0.35);
+        H.rise("#t-ret .kk .ml > span", r0);
+        H.lines("#t-ret .tt", r0 + 0.1);
+
+        /* =================== END CARD =================== */
+        const e0 = start("cta");
+        H.sink("#t-ret .kk .ml > span", e0 - 0.6);
+        H.linesOut("#t-ret .tt", e0 - 0.6);
+        H.rise("#end-mark .ml > span", e0 - 0.1, { stagger: 0.1 });
+        tl.fromTo("#end-mark i", { scale: 0 }, { scale: 1, duration: 0.6, ease: "hl.out" }, e0 + 0.15);
+        H.draw("#bm", cue("cta", 0, "enregistrez"), { d: 0.8 });
+        H.rise("#end-save .ml > span", cue("cta", 0, "enregistrez") + 0.1);
+        H.idle("#end-save svg", cue("cta", 0, "enregistrez") + 0.9, HL_TOTAL, { amp: -6, period: 2.4 });
+
+        window.__timelines["main"] = tl;
+      });
+    </script>
+  </body>
+</html>

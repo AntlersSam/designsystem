@@ -1,202 +1,174 @@
 ---
 name: hey-lilie-motion
-description: Make Hey Lilie educational motion-design videos (Instagram Reels / TikTok / Shorts, 9:16) in a Vox-style explainer grammar — study breakdowns ("décryptage d'étude"), clinical mechanisms (pelvic floor, continence, pressure), patient/pro education. Rendered with HyperFrames (HTML + GSAP) from a narrated script. Use whenever a Hey Lilie video, reel, motion design, animated explainer or "décryptage" is requested, or when an existing one must be re-timed, re-voiced or restyled.
+description: Make Hey Lilie educational motion-design videos (Instagram Reels / TikTok / Shorts, 9:16) for physiotherapists and health professionals — clinical mechanisms (pelvic floor, continence, pressure, prolapse, pain), anatomy explainers and study breakdowns ("décryptage d'étude"), in the house style of the "Fuites urinaires à l'effort" film — hook, centred titles, one living schema that changes state, movements instead of cuts, ElevenLabs Perle voice. Rendered with HyperFrames (HTML + GSAP), checked frame by frame with the bundled QA. Use whenever a Hey Lilie video, reel, motion design, animated schema, explainer or "décryptage" is requested, when several topics must be produced in a batch, or when an existing film must be re-timed, re-voiced, fixed or restyled.
 ---
 
 # Hey Lilie — motion explainers
 
-Editorial, calm, precise. A narrator explains; the drawing on screen **is** the
-explanation. The look is Hey Lilie (white paper, ink, one violet accent) and the
-grammar is the explainer channels' (Vox, Kurzgesagt, Osmosis): one continuous
-world, text that slides out of masks, a highlighter on the key word, diagrams
-that draw themselves on the word that names them.
+A narrator explains one mechanism; **the schema on screen is the explanation**.
+It is drawn once, then it *changes state* while the voice talks — the floor
+rises, the pressure fills the box, the bladder slides down — and the camera
+moves inside it. The look is Hey Lilie (paper, ink, one violet, amber only for
+a problem); the grammar is the explainer channels' (Vox, Kurzgesagt, Osmosis).
 
-**Audience: always physiotherapists (kinésithérapeutes) and other health
-professionals.** Speak to peers: clinical vocabulary is expected and must be
-exact (dyspareunie, IUE, PIA, synergie abdomino-périnéale, niveau de preuve),
-nothing is simplified into patient language, and every claim stays faithful to
-the source — limits and level of evidence are stated, never softened. Address
-the viewer with "vous"; the CTA serves their practice (save, apply, train).
+**Reference film: `videos/fuites-effort/`** ("Fuites urinaires à l'effort",
+validated 13/10). When in doubt, do what it does.
 
-It must never look like an app. **No cards, badges, pills, shadows, icon grids,
-dashboards, glassmorphism, bounce or elastic.** If a frame could be a UI
-screenshot, it is wrong.
+**Audience: always physiotherapists (kinésithérapeutes) and health
+professionals.** Peer register, "vous", exact clinical vocabulary (IUE, PIA,
+synergie abdomino-périnéale, centre tendineux, angle ano-rectal…), claims
+faithful to the source, limits and level of evidence stated. The CTA serves
+their practice.
 
-Benchmark and sources: `references/benchmark.md`. Every curve and duration:
-`references/motion-grammar.md`. Storyboard format: `references/storyboard.md`.
+Never an app look: **no cards, badges, pills, shadows, icon grids, dashboards,
+bounce, elastic.** If a frame could be a UI screenshot, it is wrong.
 
-## Pipeline
+## The method in one page
+
+| step | output | read |
+|---|---|---|
+| 1. Brief | the one question, the causal chain, sources | `references/pedagogy.md` |
+| 2. Script | `script.json`: hook → 3–5 steps → à retenir → CTA | `references/pedagogy.md` |
+| 3. Schema plan | which schema, its states, which word moves it | `references/schemas.md` |
+| 4. Storyboard | 4–5 boards, validated by the user for a new topic | `references/storyboard.md` |
+| 5. Build | `index.html` from the template, keyed to words | `references/motion-grammar.md` |
+| 6. Verify | `hyperframes check` + `qa.mjs` + snapshot review, 0 errors | `references/qa.md` |
+| 7. Voice | ElevenLabs v4 Perle, takes fetched, film re-timed | § Voice below |
+| 8. Render | MP4 ≤ 30 MB for sharing, project committed | § Render below |
+
+Several topics at once → `references/parallel.md` (one agent per film,
+placeholder voice first, voice and renders centralised).
+
+## Pipeline & commands
 
 ```
-script.json ──gen_vo.py──▶ assets/vo/*.wav ──build.py──▶ index.html (cues, audio, CSS)
-                                                         │
-                         you write the scenes in index.html, keyed to words
-                                                         ▼
-                                     npx hyperframes check → snapshot → render
+K=.claude/skills/hey-lilie-motion/kit/tools
+python3 $K/new.py videos/<slug> "Titre"        # template project (+ Neue Haas copied from a sibling film)
+# write script.json (voice.engine "placeholder" until the script is validated)
+python3 $K/gen_vo.py videos/<slug>              # placeholder clips timed like Perle
+python3 $K/build.py videos/<slug>               # word cues, audio tags, CSS, duration → index.html
+# write the scenes in index.html (HL.cue(scene, clip, "mot") everywhere)
+cd videos/<slug> && npx hyperframes check       # framework lint, contrast, layout
+node ../../$K/qa.mjs . --snap                   # frame-by-frame QA + snapshots of every problem and scene
+# real voice: ElevenLabs connector → vo.py fetch / pick → build.py → qa.mjs again
+npx hyperframes render -q high -f 30 -o <out>.mp4
 ```
 
-1. **Script first** (`script.json`). Scenes → narration clips (`vo: [...]`), one
-   sentence or one idea per clip. A study breakdown alternates *claim → Limite*:
-   every result gets its own limit clip, starting with "Limite :".
-   Write numbers and brand names as they must be *heard* (`soixante-douze`,
-   `Hé Lilie`). 60–90 s total; hook ≤ 4 s.
-2. **Storyboard** (`references/storyboard.md`): for every clip, the one visual
-   idea and the word each element lands on. Get it validated before building
-   when the topic is new.
-3. **Voice**: `python3 kit/tools/gen_vo.py <project>`. Engine is in
-   `script.json.voice` — `kokoro` (local, `ff_siwis`, offline) or `file`
-   (clips produced elsewhere: Gemini TTS, ElevenLabs, a real recording, dropped
-   in `assets/vo/<scene>_<n>.wav`). Better voice = swap the files, nothing else.
-4. **Build**: `python3 kit/tools/build.py <project>` copies the kit, lays the
-   clips end to end, estimates when **every word** is spoken (silences in the
-   wav anchored to the punctuation, words spread by length) and writes
-   `window.HL_CUES`, the `<audio>` tags, the kit CSS and the duration into
-   `index.html`. Re-run after any narration change — the film re-times itself.
-5. **Scenes** in `index.html` (start from `videos/postpartum-sexualite/` — it
-   is the reference implementation). Everything is placed with
-   `HL.cue(scene, clip, "mot")`, never with hand-typed seconds.
-6. `npx hyperframes check` must pass (0 errors), then
-   `npx hyperframes snapshot --at …` on every scene **and mid-transition**, look
-   at the frames, fix, then render: `npx hyperframes render -q high -f 30`.
+`node $K/schema-sheet.mjs pelvis "lift=0;lift=1;cysto=1" out.png --fonts <dir>`
+previews a schema in every state you plan to show, before animating it.
 
-New project: `npx hyperframes init <slug> --example blank`, delete its
-`index.html`, copy the reference `index.html` skeleton (head, `@hl` markers,
-chrome, grain), write `script.json`, then steps 3–6.
+## House grammar (non-negotiable — each line is user feedback)
 
-## The house grammar (non-negotiable)
+**Layout — centred.** Everything on the axis x = 540. One title slot at the
+top (kicker 36 px caps violet + title 112 px), one schema window under it
+(`#view`, y 690–1470), at most one caption line (y ≈ 1330) and only when the
+schema is not zoomed. Essentials inside x 96–984, y 300–1450. No logo during
+the film; the brand is the end card.
 
-**Layout (feedback 13/10: "plutôt centré")**
-- Every frame is **centered**: kicker, title and diagram on the vertical axis
-  (x = 540), text-align center, diagram in the middle band (y ≈ 600–1340),
-  caption/limit under it (≤ y 1450). The brand mark sits centered at y ≈ 300.
-- One block of text at the top, one drawing in the middle, at most one line
-  underneath. Asymmetry only inside a drawing, never in the page grid.
+**Hook first, 0–5 s.** A paradox or an image the target recognises, full-bleed
+132 px type, no chapter label ("Gainage. CrossFit. Abdos en béton." → "Et
+pourtant, elle fuit." → "Pourquoi ?"). Frame 0 already shows the first line
+(it is the thumbnail). The teaching starts only once the question is posed.
 
-**Transitions are movements, never cuts**
-- Each scene change is a named move: *match cut* (an object becomes the next
-  scene — the runner's belly becomes the abdominal cutaway), *push-in / zoom*
-  (iris opening on the next level of detail), *dolly* (the camera slides to
-  another part of the same drawing), *morph* (a line becomes a chart),
-  *rewind* (the same shot replayed with one variable changed), *takeover*
-  (a colour floods from an object). Write the move in the storyboard.
+**Transitions are movements, never cuts.** Each scene change is a named move
+(see `motion-grammar.md` § Moves): *iris* dive into the body, *dolly* to another
+part of the same schema, *push-in* on a detail, *rewind* (same shot, one
+variable changed), *morph* (a line of the schema becomes a chart), *takeover*
+(violet floods out of an object, once per film, for "À retenir").
 
-**Hook first (feedback 13/10)**
-- 0–5 s is a hook, not an explanation: a paradox, a contradiction or a
-  surprising image the target recognises ("Gainage. CrossFit. Abdos en béton."
-  → "Et pourtant, elle fuit." → "Pourquoi ?"). The teaching starts only after
-  the question is posed. Full-bleed type, no logo, no chapter label.
-- No brand mark on screen during the film; the brand lives in the end card.
+**One living schema.** One drawing per film (two at most), built once from
+`kit/anatomy/` or hand-drawn, driven by a state object (`HL.state`): never
+replace a drawing to show a new step — change its state. Focus = the subject
+turns violet, the rest steps back to grey (`P.focus`).
 
-**Type size & spacing (feedback 13/10: "textes ultra rapprochés")**
-- Titles 112 px, line-height 1.1, letter-spacing −0.018em, word-spacing
-  +0.06em. Kicker 36 px caps, tracking +0.1em. Captions 54 px, line-height 1.3.
-  Hook stack 132 px, line-height 1.12. Never below 34 px.
-- Never tighten tracking below −0.025em with Neue Haas Display: word gaps
-  collapse ("Etpourtant").
-- Vertical rhythm: kicker → title 34 px, title block → drawing ≥ 60 px,
-  drawing → caption ≥ 40 px, rows of a list ≥ 56 px apart.
-- Labels on a drawing keep ≥ 24 px from any stroke; move them outside a shape
-  when the shape moves (a sagging floor drags its labels into the wall).
+**Type size & spacing.** Titles 112 px / 1.1 / −0.018em / word-spacing
++0.06em; never tighter than −0.025em. Kicker → title 34 px, title → schema
+≥ 60 px, schema → caption ≥ 40 px. Labels ≥ 34 px rendered (QA warns < 30), ≥ 16 px from
+any stroke (6 px inside an organ). Titles ≤ 6 words, ≤ 2 lines.
 
-**World & camera**
-- One tall `#world` of stacked 1080×1920 `.frame`s. Change scene by moving the
-  camera (`HL.frames(...).go(i, t)`, 1.4 s `hl.cam`), starting ~0.85 s before
-  the scene's first word so the move lands as the voice starts. At most one
-  takeover (full-colour wipe, e.g. "À retenir") per film.
-- Build on the previous state instead of resetting: the 72 papers of the method
-  *become* the groups of the result; the ring of dimensions *floods* into the
-  takeaway. Each film needs ≥ 2 of these match transitions.
-- Chrome (brand mark + chapter label) is outside the world and never moves; the
-  world scrolls under the `.chrome-bg` paper band.
+**On screen = the spine of the sentence**, never the narration. One emphasis
+per title (`HL.mark` violet highlighter on the stressed word). Every visual
+lands on its word (`HL.cue`, 0.1 s lead built in).
 
-**Type**
-- Neue Haas Grotesk Display for titles, Text for the rest (see Fonts). Left-aligned
-  on the 96 px margin, tight leading (0.94–1.02), negative tracking.
-- Titles enter with `HL.lines` (masked lines, 0.9 s `hl.text`, 90 ms stagger).
-  Never fade-up a title, never animate letters.
-- On screen = keywords, not the narration (≤ 7 words per block). The voice says
-  the sentence; the screen shows its spine.
-- One emphasis per sentence: `HL.mark` (violet highlighter) **or** `HL.under`
-  **or** `HL.tint`. Land it on the stressed word.
+**Rhythm.** A visible change every 1.5–3 s, a 0.4–0.8 s breath after each key
+reveal, held schemas breathe (`HL.idle`). Eases: `hl.out` in, `hl.in` out,
+`hl.text` text, `hl.mark` strokes/colours, `hl.cam` camera & state changes.
 
-**Drawings**
-- Line drawings in ink (`.ink`, 5 px round caps), violet for the subject
-  (`.ink-v`), grey for context (`.ink-l`), amber only for limits (`.ink-a`).
-- They draw themselves (`HL.draw`) on the word that names them. Labels sit on
-  the drawing, never in a legend box. ≤ 4 labels visible.
-- Mechanisms: forces are arrows that grow from their origin; pressure is scale +
-  colour; tissue moves, it is not described. Anatomy is a simplified sagittal
-  cut: 3–4 flat tones, the structure being discussed in violet, the rest grey.
-- Illustrative (non-data) charts say so in small italic grey ("schéma").
-
-**Limits (study breakdowns)**
-- Always the same device: an amber asterisk lands on the claim, an amber rule
-  draws across the bottom of the safe area, `LIMITE` + one sentence rise from
-  masks (`HL.note(noteSel, t, astSel)`). The claim's visual steps back
-  (`HL.fade` to 0.4) — it is qualified, not erased.
-
-**Rhythm**
-- A visual change every 1.5–3 s, a 0.4–0.8 s breath after every key reveal.
-- Visuals start 80–150 ms before their word (`cue` already subtracts 0.1 s).
-- Entrances `hl.out`/`hl.text`, exits `hl.in` at ~60 % of the entrance time,
-  camera & regrouping `hl.cam`. Linear only for continuous drift.
-- Held frames breathe: `HL.idle` (±5 px, 3–4 s sine) on diagrams, never on text.
-
-**Frame**
-- 1080×1920. Essentials inside x 96–940, y 300–1450 (Reels UI covers the rest).
-  Brand chrome at y 300; content from y ≈ 420; limits sit on y 1450.
-- Paper `#fcfbfe` + grain at 4.5 % re-seeded at 12 fps (`HL.grain`) + a faint
-  violet vignette. Pure white looks digital; stronger grain looks dirty.
+**Colour code.** Ink `#0a0a0f`, violet `#7a29ff` = the subject / what helps,
+grey = context, amber `#d97706` = the problem (overpressure, leak, pain,
+limit). Paper `#fcfbfe` + 4.5 % grain.
 
 ## Kit (`kit/`)
 
 | file | role |
 |---|---|
-| `hl-motion.css` | tokens (Hey Lilie DS v2), type scale, world/frame/chrome, `.ml` masks, `.hl` / `.ul` / `.st` emphasis, `.note` limit device, drawing strokes, grain |
-| `hl-motion.js` | `window.HL`: the five eases + helpers — `cue/start/end/at`, `lines/linesOut/rise/sink`, `mark/under/strike/tint`, `enter/exit/fade/draw/count`, `frames().go`, `chapter`, `note/noteOut`, `grain`, `idle`, `scatter` |
-| `vendor/` | GSAP 3.15 + CustomEase, SplitText, DrawSVGPlugin (all free since 3.13) |
-| `fonts/` | Inter Tight stand-in + README for the licensed Neue Haas files |
-| `tools/gen_vo.py` | narration clips from `script.json` |
+| `hl-motion.js` | `window.HL`: eases + `cue/start/end/at`, `lines/linesOut/rise/sink`, `mark/under/strike/tint`, `enter/exit/fade/draw/count`, **`titles()`** (centred slot swap), **`state(obj, draw)`** (state-driven schema), **`pts`** (line morphs), **`iris`**, **`takeover`**, `note/noteOut` (limits), `grain`, `idle`, `scatter` |
+| `anatomy/hl-anatomy.js` | `window.HLA`: **`pelvis`** (female midsagittal: lift, push, cystocele, uterine descent, rectocele, ano-rectal angle) and **`caisson`** (abdominal pressure box: floor sag, sphincter, leak, abdominal strength) — `label`, `focus`, `reset`, live leaders |
+| `hl-motion.css` | tokens, masks, highlighter, limit note, grain, vignette |
+| `template/` | the house composition (hook → slot titles → schema → takeover → end card) + `script.json` |
+| `tools/new.py` | scaffold a film from the template |
+| `tools/gen_vo.py` | voice clips: `placeholder` / `kokoro` / `file` |
+| `tools/vo.py` | ElevenLabs takes: `fetch` from a run-status file, `pick`, `list` |
 | `tools/build.py` | word cues, audio tags, CSS, duration → `index.html` |
+| `tools/qa.mjs` | frame-by-frame animation QA (overlaps, labels on strokes, blank frames, dwell, safe zone, size, static) |
+| `tools/schema-sheet.mjs` | one PNG with a schema in several states |
+| `vendor/` | GSAP 3.15 + CustomEase, SplitText, DrawSVGPlugin |
 
-Helpers take **absolute** times on the one paused root timeline. Write
-`H.lines("#t", cue("r2", 0, "kinésithérapie"))`, not delays.
-
-## Gotchas (each one cost a render)
-
-- Never put a CSS `transform` on something GSAP animates (`lint:
-  gsap_css_transform_conflict`) — every helper uses `fromTo`, so start states
-  come from the tween.
-- `.hl` / `.ul` are inline **backgrounds** (they follow line breaks); keep them
-  ≤ 88 % high or SplitText's line masks clip them. Call `mark/under` *after*
-  `lines()` on the same block.
-- A word + its asterisk go in `<span class="nw">` or the `*` wraps alone.
-- Text off screen must be `autoAlpha: 0` (the helpers do it) or `check` reports
-  overlaps between masked blocks.
-- No `from: "random"` staggers — use `HL.scatter()` (seeded). No `Math.random`.
-- French typography: the space before `: ; ? !` is fine in `script.json`;
-  `build.py` glues those tokens to the previous word.
-- Build the timeline inside `document.fonts.ready.then(...)` (SplitText needs
-  the real metrics) and register `window.__timelines["main"]` last.
-- `check` samples every few seconds: run `snapshot` at transitions too — a
-  camera move or a wipe is where things collide.
-
-## Fonts
-
-Brand faces are **Neue Haas Grotesk Display / Text** (Monotype, licensed — not
-in the repo). Put the woff2 files in `<project>/assets/fonts/` named
-`nhg-display-500|600|700.woff2` and `nhg-text-400|500|600.woff2`; `build.py`
-switches the `@font-face` block automatically and prints which family is used.
-Check the licence covers video/motion use. Until then **Inter Tight** stands in.
+Helpers take **absolute** times on the one paused root timeline:
+`H.lines("#t", cue("perinee", 0, "hamac"))`, never delays. State tweens must be
+scheduled in chronological order (`S.to` starts from where the previous one
+left the state).
 
 ## Voice
 
-**House voice: ElevenLabs "Perle — Premium French Corporate Voice"
-(`voice_id UaGvaD7NWzU5mJNoUqoY`), model `eleven_v4`** (validated 13/10).
-Generate through the ElevenLabs connector (`creative_create_flow` once per
-film, then `creative_generate_speech` per narration clip on that flow; 4 takes
-each, pick one), download the take's `content_url` (storage.googleapis.com is
-reachable; api.elevenlabs.io is not) to `assets/vo/<scene>_<n>.mp3`, convert to
-wav with ffmpeg, set `voice.engine: "file"`, then run `build.py`.
-v4 prompting: punctuation and "…" for pauses, `[pause]` tags allowed, numbers
-written normally. Kokoro `ff_siwis` stays as an offline fallback only.
+**House voice: ElevenLabs "Perle" (`voice_id UaGvaD7NWzU5mJNoUqoY`), model
+`eleven_v4`** (validated 13/10).
+1. Script validated first — generations cost credits (≈ 1 credit per
+   character per take: a 150-character clip × 2 takes ≈ 300). Until then
+   `voice.engine: "placeholder"`.
+2. `creative_create_flow` once per film; `creative_generate_speech` per clip on
+   that flow (`model_id eleven_v4`, the voice id, the clip text verbatim). Never
+   call a generation twice to "retry" — it charges again; poll
+   `creative_get_flow_run_status` instead.
+3. Save the status result to a file, `python3 $K/vo.py <proj> fetch <file>`
+   (downloads from storage.googleapis.com; api.elevenlabs.io is not reachable
+   from the sandbox), `vo.py <proj> pick` (first take, or `clip=n`), set
+   `voice.engine: "file"`, `build.py`, `qa.mjs`.
+4. You cannot listen: say which takes were picked and keep all takes in
+   `assets/vo/takes/` so the user can swap one (`vo.py pick perinee_0=2`).
+v4 prompting: punctuation and "…" for pauses, `[pause]` allowed, write numbers
+as they must be heard.
+
+## Render
+
+`npx hyperframes render -q high -f 30 -o <scratchpad>/out/<slug>.mp4` (≈ 7 s
+of compute per second of film; run it in the background, at most two at once).
+Re-encode for sharing: `ffmpeg -i in.mp4 -c:v libx264 -preset slow -crf 24
+-pix_fmt yuv420p -movflags +faststart -c:a aac -b:a 160k out.mp4` (≈ 7 MB per
+minute). Check streams and loudness (`volumedetect`, max ≈ −4 dB), extract a
+contact strip of the final file, then send it. Commit the project (fonts and
+`.qa/` stay ignored).
+
+## Fonts
+
+Neue Haas Grotesk Display 55 Roman + 65 Medium (licensed, never committed):
+`<project>/assets/fonts/nhg-display-55.otf` and `nhg-display-65.otf`. `new.py`
+copies them from a sibling film; `build.py` maps 55 → 400 and 65 → 500–800 for
+both "HL Display" and "HL Text" and prints `fonts: Neue Haas`. No Bold exists —
+never synthesise one. Without the files, Inter Tight stands in.
+
+## Gotchas (each one cost a render)
+
+- No CSS `transform` on anything GSAP animates; start states come from `fromTo`.
+- `.hl` / `.ul` are inline backgrounds ≤ 88 % high; call `mark` after `lines`.
+- Text off screen must be `autoAlpha: 0` (helpers do it; anatomy labels start
+  hidden — show them with `H.enter`, which uses autoAlpha).
+- Seeded `HL.scatter()`, never `from: "random"` or `Math.random`.
+- A word + its asterisk in `<span class="nw">`; `&nbsp;` before `? ! :`.
+- Cue words with an elided article include it: `"l'urètre"`, `"l'onde"`.
+- Build the timeline inside `document.fonts.ready.then(...)`, register
+  `window.__timelines["main"]` last.
+- A zoomed camera pushes side labels out of the safe zone and onto captions:
+  swap them for a label under the structure, pull back before a caption.
+- `check` samples sparsely — `qa.mjs` samples every 0.2 s; trust it, then look
+  at its snapshots.

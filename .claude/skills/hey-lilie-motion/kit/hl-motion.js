@@ -106,14 +106,14 @@ window.HL = (() => {
 
   /* ---------- objects ---------- */
   function enter(sel, t, o = {}) {
-    tl.fromTo(arr(sel), { opacity: 0, y: o.y ?? 40, x: o.x ?? 0, scale: o.scale ?? 1 },
-      { opacity: 1, y: 0, x: 0, scale: 1, duration: o.d ?? D.in, ease: "hl.out", stagger: o.stagger ?? D.stagger }, t);
+    tl.fromTo(arr(sel), { autoAlpha: 0, y: o.y ?? 40, x: o.x ?? 0, scale: o.scale ?? 1 },
+      { autoAlpha: 1, y: 0, x: 0, scale: 1, duration: o.d ?? D.in, ease: "hl.out", stagger: o.stagger ?? D.stagger }, t);
   }
   function exit(sel, t, o = {}) {
-    tl.to(arr(sel), { opacity: 0, y: o.y ?? -24, duration: o.d ?? D.out, ease: "hl.in", stagger: o.stagger ?? 0.04 }, t);
+    tl.to(arr(sel), { autoAlpha: 0, y: o.y ?? -24, duration: o.d ?? D.out, ease: "hl.in", stagger: o.stagger ?? 0.04 }, t);
   }
   function fade(sel, t, to = 0.25, o = {}) {
-    tl.to(arr(sel), { opacity: to, duration: o.d ?? 0.6, ease: "hl.mark", stagger: o.stagger ?? 0 }, t);
+    tl.to(arr(sel), { autoAlpha: to, duration: o.d ?? 0.6, ease: "hl.mark", stagger: o.stagger ?? 0 }, t);
   }
   /** SVG stroke drawing (paths/lines/rects with a stroke) */
   function draw(sel, t, o = {}) {
@@ -202,6 +202,78 @@ window.HL = (() => {
       repeat: reps * 2 + 1, stagger: o.stagger ?? 0.4 }, from);
   }
 
-  return { use, D, cue, start, end, at, lines, linesOut, rise, sink, mark, under, strike, tint,
+  /* ---------- centered title slot (the house layout) ---------- */
+  /** one slot at the top of the frame: each call swaps the previous kicker+title
+   *  out and the next one in. Markup: <div class="ttl" id="t-x"><div class="kk">
+   *  <span class="ml"><span>KICKER</span></span></div><h2 class="tt">Title</h2></div> */
+  function titles() {
+    let cur = null;
+    const q = (s) => document.querySelector(s);
+    const swap = (id, t) => {
+      if (cur) {
+        if (q(`#${cur} .kk`)) sink(`#${cur} .kk .ml > span`, t - 0.35);
+        linesOut(`#${cur} .tt`, t - 0.35);
+      }
+      if (id) {
+        if (q(`#${id} .kk`)) rise(`#${id} .kk .ml > span`, t);
+        lines(`#${id} .tt`, t + 0.08);
+      }
+      cur = id;
+    };
+    swap.current = () => cur;
+    return swap;
+  }
+
+  /* ---------- state-driven drawings ---------- */
+  /** A drawing whose geometry is a function of a few numbers (pressure, sag,
+   *  opening…). `draw(state)` rewrites the SVG from the state; `to()` tweens
+   *  the state on the timeline. Schedule calls in chronological order: each
+   *  tween starts from where the previous one left the state, so a seek to any
+   *  time redraws the right geometry. */
+  function state(obj, drawFn) {
+    const now = { ...obj };
+    const redraw = () => drawFn(obj);
+    redraw();
+    return {
+      s: obj,
+      draw: redraw,
+      to(vars, t, d = D.cam, ease = "hl.cam") {
+        const from = {};
+        for (const k of Object.keys(vars)) from[k] = now[k];
+        Object.assign(now, vars);
+        tl.fromTo(obj, from, { ...vars, duration: d, ease, onUpdate: redraw, immediateRender: false }, t);
+      },
+      set(vars, t) { Object.assign(now, vars); tl.set(obj, { ...vars, onComplete: redraw }, t); },
+    };
+  }
+  /** point-list helpers for line morphs (a curve becoming a chart, etc.) */
+  const pts = {
+    toD: (P) => P.map((p, i) => `${i ? "L" : "M"}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(" "),
+    lerp: (A, B, k) => A.map((p, i) => [p[0] + (B[i][0] - p[0]) * k, p[1] + (B[i][1] - p[1]) * k]),
+    line: (x0, x1, y, n = 48) => Array.from({ length: n }, (_, i) => [x0 + ((x1 - x0) * i) / (n - 1), y]),
+    zig: (x0, x1, y, a, n = 48, per = 8) => Array.from({ length: n }, (_, i) => {
+      const ph = (i % per) / per, tri = ph < 0.5 ? ph * 2 : 2 - ph * 2;
+      return [x0 + ((x1 - x0) * i) / (n - 1), y + a - tri * 2 * a]; }),
+    wave: (x0, x1, y, a, period, n = 64) => Array.from({ length: n }, (_, i) => {
+      const x = x0 + ((x1 - x0) * i) / (n - 1); return [x, y + a * Math.sin(((x - x0) / period) * Math.PI * 2)]; }),
+    sample: (pathEl, n = 48) => { const L = pathEl.getTotalLength();
+      return Array.from({ length: n }, (_, i) => { const p = pathEl.getPointAtLength((L * i) / (n - 1)); return [p.x, p.y]; }); },
+  };
+
+  /* ---------- transitions as movements ---------- */
+  /** iris: a circular window opens (or closes) on a layer — used to dive into a body */
+  function iris(sel, t, o = {}) {
+    const { x = 540, y = 1040, from = 0, to = 1400, d = 1.2 } = o;
+    tl.fromTo(sel, { clipPath: `circle(${from}px at ${x}px ${y}px)` },
+      { clipPath: `circle(${to}px at ${x}px ${y}px)`, duration: d, ease: "hl.cam", immediateRender: from === 0 && t === 0 }, t);
+  }
+  /** colour takeover: a full-frame layer floods out of a point (one per film) */
+  function takeover(sel, t, o = {}) {
+    const { x = 540, y = 1192, d = 1.3 } = o;
+    gsap.set(sel, { clipPath: `circle(0px at ${x}px ${y}px)` });
+    tl.to(sel, { clipPath: `circle(1500px at ${x}px ${y}px)`, duration: d, ease: "hl.cam" }, t);
+  }
+
+  return { use, D, cue, start, end, at, titles, state, pts, iris, takeover, lines, linesOut, rise, sink, mark, under, strike, tint,
     enter, exit, fade, draw, count, cam, frames, frameY, chapter, note, noteOut, grain, idle, split, scatter };
 })();

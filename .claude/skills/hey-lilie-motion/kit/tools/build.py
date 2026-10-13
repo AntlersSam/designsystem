@@ -3,7 +3,7 @@
 
     python3 build.py <project-dir>
 
-1. copies the kit (vendor JS, fonts) into <project>/assets
+1. copies the kit (vendor JS, hl-motion.js, anatomy/hl-anatomy.js, fonts) into <project>/assets
 2. lays the voiceover clips of script.json end to end (with breaths)
 3. estimates when every word is spoken: the clip's silences are matched to the
    punctuation of the text, words in between are spread by character count
@@ -115,6 +115,7 @@ def main(proj):
     for f in (KIT / "vendor").glob("*.js"):
         shutil.copy(f, proj / "assets/vendor" / f.name)
     shutil.copy(KIT / "hl-motion.js", proj / "assets/vendor/hl-motion.js")
+    shutil.copy(KIT / "anatomy/hl-anatomy.js", proj / "assets/vendor/hl-anatomy.js")
     for f in (KIT / "fonts").glob("*.woff2"):
         shutil.copy(f, proj / "assets/fonts" / f.name)
 

@@ -1,25 +1,26 @@
 # Storyboard format
 
-Write it before building; get it validated for every new topic. One row per
-narration clip. The "lands on" column becomes `HL.cue(...)` calls one-for-one.
+Write it before building; get it validated for every new topic (4–5 boards,
+see `videos/fuites-effort/storyboard/` for the visual version). One block per
+scene; the "lands on" lines become `HL.cue(...)` calls one-for-one.
 
 ```
-## <scene id> — <chapter>        frame <n> · transition in: <camera | regroup | takeover | none>
+## <scene id> — <title on screen>      move in: <iris | dolly | push-in | rewind | morph | takeover>
 
 vo[0]: "<exact narration>"
-  idea:      <the single visual idea, one line>
-  elements:  <what is drawn / written — keywords only>
-  lands on:  "<mot>" → <element + device>   (one line per element)
-  emphasis:  <one: mark | under | tint> on "<mot>"
+  kicker / title: "<KICKER>" / "<title ≤ 6 words>"   emphasis: mark on "<mot>"
+  schema state:   <HLA.x: state before → state after>   focus: <parts in violet>
+  lands on:       "<mot>" → <element + device>          (one line per element)
+  labels:         <≤ 4 parts>
 vo[1]: "Limite : …"            (study breakdowns: every result has one)
-  limit:     asterisk on <claim>, note: "<one sentence>"
-  claim visual: fade to 0.4 | regroup | <other>
+  limit:          asterisk on <claim>, note: "<one sentence>"
 ```
 
 Checklist before building:
-- [ ] hook ≤ 4 s, starts in motion, poses a question or a paradox
+- [ ] hook ≤ 6 s, starts in motion (frame 0 already shows the first line), ends on the question
 - [ ] every scene has one idea, ≤ 7 words on screen at a time
 - [ ] ≥ 2 match transitions (an object of scene N becomes scene N+1)
+- [ ] one schema carries the film; every mechanism verb is a state change of it
 - [ ] every mechanism is shown (arrows, pressure, movement), not written
 - [ ] every result has its limit, same device each time
 - [ ] the takeaway is one sentence; the CTA is one verb
